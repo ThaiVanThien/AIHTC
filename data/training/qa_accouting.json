@@ -1,0 +1,794 @@
+
+[
+  {
+    "question": "Kế toán là gì?",
+    "context": "Kế toán là một hệ thống thông tin và đo lường các hoạt động kinh tế của một tổ chức. Nó cung cấp thông tin về tài chính cho các bên liên quan để ra quyết định.",
+    "answer": "Kế toán là một hệ thống thông tin và đo lường các hoạt động kinh tế của một tổ chức."
+  },
+  {
+    "question": "Các nguyên tắc cơ bản của kế toán là gì?",
+    "context": "Các nguyên tắc cơ bản của kế toán bao gồm: nguyên tắc giá gốc, nguyên tắc phù hợp, nguyên tắc nhất quán, nguyên tắc thận trọng, nguyên tắc trọng yếu và nguyên tắc cơ sở dồn tích.",
+    "answer": "Các nguyên tắc cơ bản của kế toán bao gồm: nguyên tắc giá gốc, nguyên tắc phù hợp, nguyên tắc nhất quán, nguyên tắc thận trọng, nguyên tắc trọng yếu và nguyên tắc cơ sở dồn tích."
+  },
+  {
+    "question": "Phương trình kế toán cơ bản là gì?",
+    "context": "Phương trình kế toán cơ bản là: Tài sản = Nợ phải trả + Vốn chủ sở hữu. Đây là nền tảng của mọi báo cáo tài chính.",
+    "answer": "Phương trình kế toán cơ bản là: Tài sản = Nợ phải trả + Vốn chủ sở hữu."
+  },
+  {
+    "question": "Báo cáo tài chính gồm những gì?",
+    "context": "Báo cáo tài chính bao gồm: Bảng cân đối kế toán, Báo cáo kết quả hoạt động kinh doanh, Báo cáo lưu chuyển tiền tệ và Thuyết minh báo cáo tài chính.",
+    "answer": "Báo cáo tài chính bao gồm: Bảng cân đối kế toán, Báo cáo kết quả hoạt động kinh doanh, Báo cáo lưu chuyển tiền tệ và Thuyết minh báo cáo tài chính."
+  },
+  {
+    "question": "Chu kỳ kế toán là gì?",
+    "context": "Chu kỳ kế toán là quá trình ghi nhận, xử lý và báo cáo các giao dịch tài chính của một doanh nghiệp trong một kỳ kế toán nhất định, thường là một năm.",
+    "answer": "Chu kỳ kế toán là quá trình ghi nhận, xử lý và báo cáo các giao dịch tài chính của một doanh nghiệp trong một kỳ kế toán nhất định."
+  },
+  {
+    "question": "Tài khoản kế toán là gì?",
+    "context": "Tài khoản kế toán là công cụ để ghi chép, phân loại và tổng hợp các nghiệp vụ kinh tế phát sinh theo từng đối tượng kế toán riêng biệt.",
+    "answer": "Tài khoản kế toán là công cụ để ghi chép, phân loại và tổng hợp các nghiệp vụ kinh tế phát sinh theo từng đối tượng kế toán riêng biệt."
+  },
+  {
+    "question": "Kế toán tài chính là gì?",
+    "context": "Kế toán tài chính là việc ghi chép, phân loại và tổng hợp các nghiệp vụ kinh tế phát sinh để lập báo cáo tài chính cho các đối tượng bên ngoài doanh nghiệp.",
+    "answer": "Kế toán tài chính là việc ghi chép, phân loại và tổng hợp các nghiệp vụ kinh tế phát sinh để lập báo cáo tài chính cho các đối tượng bên ngoài doanh nghiệp."
+  },
+  {
+    "question": "Kế toán quản trị là gì?",
+    "context": "Kế toán quản trị là việc thu thập, xử lý và cung cấp thông tin kế toán cho nhà quản lý để ra quyết định và kiểm soát hoạt động của doanh nghiệp.",
+    "answer": "Kế toán quản trị là việc thu thập, xử lý và cung cấp thông tin kế toán cho nhà quản lý để ra quyết định và kiểm soát hoạt động của doanh nghiệp."
+  },
+  {
+    "question": "Chứng từ kế toán là gì?",
+    "context": "Chứng từ kế toán là những giấy tờ, tài liệu phản ánh các nghiệp vụ kinh tế phát sinh và đã hoàn thành, làm căn cứ để ghi sổ kế toán.",
+    "answer": "Chứng từ kế toán là những giấy tờ, tài liệu phản ánh các nghiệp vụ kinh tế phát sinh và đã hoàn thành, làm căn cứ để ghi sổ kế toán."
+  },
+  {
+    "question": "Sổ kế toán là gì?",
+    "context": "Sổ kế toán là phương tiện để ghi chép, hệ thống hóa và lưu trữ thông tin về các nghiệp vụ kinh tế phát sinh theo một trình tự nhất định.",
+    "answer": "Sổ kế toán là phương tiện để ghi chép, hệ thống hóa và lưu trữ thông tin về các nghiệp vụ kinh tế phát sinh theo một trình tự nhất định."
+  },
+  {
+    "question": "Lợi nhuận gộp là gì?",
+    "context": "Lợi nhuận gộp là phần chênh lệch giữa doanh thu thuần và giá vốn hàng bán. Nó thể hiện khả năng sinh lời từ hoạt động kinh doanh chính của doanh nghiệp.",
+    "answer": "Lợi nhuận gộp là phần chênh lệch giữa doanh thu thuần và giá vốn hàng bán."
+  },
+  {
+    "question": "Tài sản ngắn hạn là gì?",
+    "context": "Tài sản ngắn hạn là những tài sản có thể chuyển đổi thành tiền mặt trong vòng một năm hoặc trong một chu kỳ kinh doanh bình thường của doanh nghiệp.",
+    "answer": "Tài sản ngắn hạn là những tài sản có thể chuyển đổi thành tiền mặt trong vòng một năm."
+  },
+  {
+    "question": "Nợ phải trả là gì?",
+    "context": "Nợ phải trả là các khoản nợ mà doanh nghiệp có nghĩa vụ thanh toán cho các bên khác, bao gồm nợ ngắn hạn và nợ dài hạn.",
+    "answer": "Nợ phải trả là các khoản nợ mà doanh nghiệp có nghĩa vụ thanh toán cho các bên khác."
+  },
+  {
+    "question": "Vốn chủ sở hữu là gì?",
+    "context": "Vốn chủ sở hữu là phần còn lại của tài sản sau khi trừ đi nợ phải trả. Nó thể hiện quyền lợi của chủ sở hữu trong tài sản của doanh nghiệp.",
+    "answer": "Vốn chủ sở hữu là phần còn lại của tài sản sau khi trừ đi nợ phải trả."
+  },
+  {
+    "question": "Doanh thu thuần là gì?",
+    "context": "Doanh thu thuần là tổng doanh thu từ hoạt động kinh doanh chính sau khi trừ đi các khoản giảm trừ như chiết khấu, giảm giá và hàng trả lại.",
+    "answer": "Doanh thu thuần là tổng doanh thu từ hoạt động kinh doanh chính sau khi trừ đi các khoản giảm trừ."
+  },
+  {
+    "question": "Chi phí hoạt động là gì?",
+    "context": "Chi phí hoạt động là các khoản chi phí phát sinh trong quá trình hoạt động kinh doanh của doanh nghiệp, bao gồm chi phí bán hàng và chi phí quản lý doanh nghiệp.",
+    "answer": "Chi phí hoạt động là các khoản chi phí phát sinh trong quá trình hoạt động kinh doanh của doanh nghiệp."
+  },
+  {
+    "question": "Lợi nhuận ròng là gì?",
+    "context": "Lợi nhuận ròng là phần lợi nhuận còn lại sau khi trừ đi tất cả các chi phí, bao gồm chi phí hoạt động, chi phí tài chính và thuế thu nhập doanh nghiệp.",
+    "answer": "Lợi nhuận ròng là phần lợi nhuận còn lại sau khi trừ đi tất cả các chi phí."
+  },
+  {
+    "question": "Tài sản dài hạn là gì?",
+    "context": "Tài sản dài hạn là những tài sản có thời gian sử dụng hoặc có thể chuyển đổi thành tiền mặt trên một năm, bao gồm tài sản cố định và đầu tư dài hạn.",
+    "answer": "Tài sản dài hạn là những tài sản có thời gian sử dụng hoặc có thể chuyển đổi thành tiền mặt trên một năm."
+  },
+  {
+    "question": "Khấu hao tài sản cố định là gì?",
+    "context": "Khấu hao tài sản cố định là việc phân bổ chi phí của tài sản cố định vào chi phí hoạt động trong suốt thời gian sử dụng của tài sản đó.",
+    "answer": "Khấu hao tài sản cố định là việc phân bổ chi phí của tài sản cố định vào chi phí hoạt động."
+  },
+  {
+    "question": "Lợi nhuận trước thuế là gì?",
+    "context": "Lợi nhuận trước thuế là lợi nhuận của doanh nghiệp trước khi trừ đi thuế thu nhập doanh nghiệp, thể hiện khả năng sinh lời từ hoạt động kinh doanh.",
+    "answer": "Lợi nhuận trước thuế là lợi nhuận của doanh nghiệp trước khi trừ đi thuế thu nhập doanh nghiệp."
+  },
+  {
+    "question": "Tỷ lệ nợ trên vốn chủ sở hữu là gì?",
+    "context": "Tỷ lệ nợ trên vốn chủ sở hữu là chỉ số tài chính đo lường mức độ sử dụng nợ của doanh nghiệp so với vốn chủ sở hữu, giúp đánh giá rủi ro tài chính.",
+    "answer": "Tỷ lệ nợ trên vốn chủ sở hữu là chỉ số tài chính đo lường mức độ sử dụng nợ của doanh nghiệp so với vốn chủ sở hữu."
+  },
+  {
+    "question": "Dòng tiền từ hoạt động kinh doanh là gì?",
+    "context": "Dòng tiền từ hoạt động kinh doanh là dòng tiền thu được từ các hoạt động kinh doanh chính của doanh nghiệp, bao gồm thu từ bán hàng và chi trả cho chi phí hoạt động.",
+    "answer": "Dòng tiền từ hoạt động kinh doanh là dòng tiền thu được từ các hoạt động kinh doanh chính của doanh nghiệp."
+  },
+  {
+    "question": "Tỷ suất lợi nhuận gộp là gì?",
+    "context": "Tỷ suất lợi nhuận gộp là tỷ lệ giữa lợi nhuận gộp và doanh thu thuần, thể hiện khả năng sinh lời từ hoạt động kinh doanh chính của doanh nghiệp.",
+    "answer": "Tỷ suất lợi nhuận gộp là tỷ lệ giữa lợi nhuận gộp và doanh thu thuần."
+  },
+  {
+    "question": "Tỷ suất lợi nhuận ròng là gì?",
+    "context": "Tỷ suất lợi nhuận ròng là tỷ lệ giữa lợi nhuận ròng và doanh thu thuần, thể hiện khả năng sinh lời sau khi trừ đi tất cả các chi phí.",
+    "answer": "Tỷ suất lợi nhuận ròng là tỷ lệ giữa lợi nhuận ròng và doanh thu thuần."
+  },
+  {
+    "question": "Tài sản cố định là gì?",
+    "context": "Tài sản cố định là những tài sản có thời gian sử dụng dài hạn, không thể chuyển đổi nhanh chóng thành tiền mặt, bao gồm máy móc, thiết bị và nhà xưởng.",
+    "answer": "Tài sản cố định là những tài sản có thời gian sử dụng dài hạn, không thể chuyển đổi nhanh chóng thành tiền mặt."
+  },
+  {
+    "question": "Chi phí tài chính là gì?",
+    "context": "Chi phí tài chính là các khoản chi phí liên quan đến hoạt động tài chính của doanh nghiệp, bao gồm lãi vay và các chi phí khác liên quan đến tài chính.",
+    "answer": "Chi phí tài chính là các khoản chi phí liên quan đến hoạt động tài chính của doanh nghiệp."
+  },
+  {
+    "question": "Tỷ lệ thanh toán hiện hành là gì?",
+    "context": "Tỷ lệ thanh toán hiện hành là chỉ số tài chính đo lường khả năng thanh toán nợ ngắn hạn của doanh nghiệp bằng tài sản ngắn hạn.",
+    "answer": "Tỷ lệ thanh toán hiện hành là chỉ số tài chính đo lường khả năng thanh toán nợ ngắn hạn của doanh nghiệp."
+  },
+  {
+    "question": "Tỷ lệ thanh toán nhanh là gì?",
+    "context": "Tỷ lệ thanh toán nhanh là chỉ số tài chính đo lường khả năng thanh toán nợ ngắn hạn của doanh nghiệp bằng tài sản ngắn hạn trừ hàng tồn kho.",
+    "answer": "Tỷ lệ thanh toán nhanh là chỉ số tài chính đo lường khả năng thanh toán nợ ngắn hạn của doanh nghiệp trừ hàng tồn kho."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên tài sản là gì?",
+    "context": "Tỷ lệ lợi nhuận trên tài sản là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ tài sản của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên tài sản là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ tài sản của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn chủ sở hữu là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn chủ sở hữu là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn chủ sở hữu.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn chủ sở hữu là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn chủ sở hữu."
+  },
+  {
+    "question": "Tỷ lệ chi phí trên doanh thu là gì?",
+    "context": "Tỷ lệ chi phí trên doanh thu là chỉ số tài chính đo lường mức độ chi phí so với doanh thu của doanh nghiệp.",
+    "answer": "Tỷ lệ chi phí trên doanh thu là chỉ số tài chính đo lường mức độ chi phí so với doanh thu của doanh nghiệp."
+  },
+  {
+    "question": "Tỷ lệ nợ trên tổng tài sản là gì?",
+    "context": "Tỷ lệ nợ trên tổng tài sản là chỉ số tài chính đo lường mức độ sử dụng nợ của doanh nghiệp so với tổng tài sản.",
+    "answer": "Tỷ lệ nợ trên tổng tài sản là chỉ số tài chính đo lường mức độ sử dụng nợ của doanh nghiệp so với tổng tài sản."
+  },
+  {
+    "question": "Tỷ lệ vốn chủ sở hữu trên tổng tài sản là gì?",
+    "context": "Tỷ lệ vốn chủ sở hữu trên tổng tài sản là chỉ số tài chính đo lường mức độ sử dụng vốn chủ sở hữu của doanh nghiệp so với tổng tài sản.",
+    "answer": "Tỷ lệ vốn chủ sở hữu trên tổng tài sản là chỉ số tài chính đo lường mức độ sử dụng vốn chủ sở hữu của doanh nghiệp so với tổng tài sản."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên doanh thu là gì?",
+    "context": "Tỷ lệ lợi nhuận trên doanh thu là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ doanh thu của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên doanh thu là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ doanh thu của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên chi phí là gì?",
+    "context": "Tỷ lệ lợi nhuận trên chi phí là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ chi phí của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên chi phí là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ chi phí của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn đầu tư là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn đầu tư là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn đầu tư của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn đầu tư là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn đầu tư của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn lưu động là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn lưu động là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn lưu động của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn lưu động là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn lưu động của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cố định là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cố định là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cố định của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cố định là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cố định của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn vay là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn vay là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn vay của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn vay là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn vay của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần ưu đãi là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần ưu đãi của mình."
+  },
+  {
+    "question": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là gì?",
+    "context": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình.",
+    "answer": "Tỷ lệ lợi nhuận trên vốn cổ phần thường là chỉ số tài chính đo lường khả năng sinh lời của doanh nghiệp từ vốn cổ phần thường của mình."
+  }
+  
+]
