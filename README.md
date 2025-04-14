@@ -27,7 +27,84 @@
 
 ---
 
-# Ứng dụng API xử lý ngôn ngữ tự nhiên
+# API Xử lý Ngôn ngữ Tự nhiên Tiếng Việt
+
+API hỗ trợ đa dịch vụ xử lý ngôn ngữ tự nhiên, tích hợp nhiều mô hình khác nhau:
+
+## Các dịch vụ được hỗ trợ
+
+1. **ViMRC** - Mô hình trả lời câu hỏi tiếng Việt
+   - Sử dụng mô hình vi-mrc-large để tìm câu trả lời từ đoạn văn
+   - Có thể huấn luyện và tinh chỉnh với dữ liệu tùy chỉnh
+   - Hoạt động ngay cả khi không có kết nối internet
+
+2. **OpenAI** - Tích hợp API của OpenAI
+   - Sử dụng các mô hình LLM tiên tiến như GPT-3.5-Turbo và GPT-4
+   - Yêu cầu API key hợp lệ từ OpenAI
+   - Hỗ trợ nhiều mô hình khác nhau từ OpenAI
+
+3. **Gemini** - Tích hợp API của Google
+   - Sử dụng các mô hình mới nhất từ Google như Gemini Pro
+   - Yêu cầu API key hợp lệ từ Google
+   - Hỗ trợ nhiều mô hình đa phương thức
+
+## Tính năng chính
+
+- **Trả lời câu hỏi**: Tìm câu trả lời dựa trên ngữ cảnh cung cấp
+- **So sánh mô hình**: So sánh kết quả từ nhiều mô hình khác nhau
+- **Quản lý cache**: Xóa cache để tiết kiệm không gian đĩa
+- **Huấn luyện mô hình**: Huấn luyện mô hình tùy chỉnh trên dữ liệu riêng
+- **Tải mô hình từ xa**: Tải và cài đặt mô hình từ URL
+
+## Cài đặt và sử dụng
+
+1. Cài đặt các gói phụ thuộc:
+   ```
+   pip install -r requirements.txt
+   ```
+
+2. Cấu hình API key trong file `.env`:
+   ```
+   OPENAI_API_KEY=your_openai_key
+   GOOGLE_API_KEY=your_google_key
+   ```
+
+3. Khởi động ứng dụng:
+   ```
+   uvicorn app.main:app --reload
+   ```
+
+4. Truy cập Swagger UI để xem và thử nghiệm API:
+   ```
+   http://localhost:8000/docs
+   ```
+
+## Sử dụng dịch vụ NLP
+
+Ví dụ trả lời câu hỏi với ViMRC:
+```
+POST /api/v1/answer
+{
+  "question": "Doanh thu quý 1 là bao nhiêu?",
+  "context": "Doanh thu quý 1 là 500 tỷ đồng, tăng 20% so với cùng kỳ năm ngoái."
+}
+```
+
+So sánh kết quả từ tất cả các dịch vụ:
+```
+POST /api/v1/compare
+{
+  "question": "Doanh thu quý 1 là bao nhiêu?",
+  "context": "Doanh thu quý 1 là 500 tỷ đồng, tăng 20% so với cùng kỳ năm ngoái."
+}
+```
+
+## Tài liệu API
+
+Tài liệu API đầy đủ có sẵn tại Swagger UI sau khi khởi động ứng dụng:
+```
+http://localhost:8000/docs
+```
 
 ## Cài đặt mô hình vi-mrc-large
 

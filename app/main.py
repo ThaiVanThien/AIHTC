@@ -1,4 +1,9 @@
 from fastapi import FastAPI, APIRouter, Request, status, HTTPException, Depends
+from fastapi.exception_handlers import http_exception_handler
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.responses import JSONResponse
 import logging
 import os
 import sys
@@ -10,10 +15,13 @@ import uuid
 from datetime import datetime
 from typing import Callable, Dict, Union, List, Optional
 
+# Load .env file
+from dotenv import load_dotenv
+load_dotenv(verbose=True)
+
 from app.core.config import settings
 from app.core.logging_config import setup_logging
-from app.routers import items
-from app.routers import nlp
+from app.routers import nlp, vimrc, cloud_ai
 
 # Thiết lập logging
 logger = setup_logging()
@@ -123,17 +131,18 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # Tạo ứng dụng FastAPI với cấu hình nâng cao
 app = FastAPI(
-    title="AI Chat API",
+    title="Vietnamese NLP API",
     description="""
-    <h2>API Chat thông minh</h2>
-    <p>API hỗ trợ chat và xử lý ngôn ngữ tự nhiên tiếng Việt</p>
+    <h2>API Xử lý Ngôn ngữ Tự nhiên Tiếng Việt</h2>
+    <p>API hỗ trợ nhiều dịch vụ xử lý ngôn ngữ tự nhiên tiếng Việt</p>
     <ul>
-        <li>✅ Chat thông minh</li>
-        <li>✅ Xử lý tiếng Việt</li>
-        <li>✅ Trả lời câu hỏi</li>
+        <li>✅ ViMRC - Trả lời câu hỏi tiếng Việt</li>
+        <li>✅ OpenAI - Tích hợp API của OpenAI</li>
+        <li>✅ Gemini - Tích hợp API của Google</li>
+        <li>✅ So sánh kết quả từ nhiều mô hình</li>
     </ul>
     """,
-    version="1.0.0",
+    version="2.0.0",
     swagger_ui_parameters={
         "docExpansion": "list",
         "defaultModelsExpandDepth": 2,
@@ -147,16 +156,16 @@ app = FastAPI(
     # Thông tin bổ sung
     openapi_tags=[
         {
-            "name": "root",
-            "description": "Endpoint chính của API"
-        },
-        {
-            "name": "items",
-            "description": "Quản lý các items trong hệ thống"
-        },
-        {
             "name": "nlp",
-            "description": "Các tính năng xử lý ngôn ngữ tự nhiên"
+            "description": "Các tính năng xử lý ngôn ngữ tự nhiên chung"
+        },
+        {
+            "name": "vi-mrc",
+            "description": "Mô hình trả lời câu hỏi tiếng Việt (Vi-MRC)"
+        },
+        {
+            "name": "cloud-ai",
+            "description": "Dịch vụ AI trên cloud (OpenAI, Gemini)"
         },
         {
             "name": "admin",
@@ -194,10 +203,10 @@ app.add_middleware(
 
 # Tạo router API gốc
 api_router = APIRouter(prefix="/api/v1")
-
 # Đăng ký router con
-api_router.include_router(items.router, prefix="/items", tags=["items"])
-api_router.include_router(nlp.router, prefix="/nlp", tags=["nlp"])
+api_router.include_router(nlp.router, tags=["nlp"])
+api_router.include_router(vimrc.router, tags=["vi-mrc"])
+api_router.include_router(cloud_ai.router, tags=["cloud-ai"])
 
 # Đăng ký router API gốc vào ứng dụng
 app.include_router(api_router)

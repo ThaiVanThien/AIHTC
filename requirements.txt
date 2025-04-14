@@ -10,6 +10,7 @@ email-validator>=2.2.0
 ujson>=5.10.0
 orjson>=3.10.16
 itsdangerous>=2.2.0
+python-dotenv>=1.0.0
 
 # Các thư viện xử lý dữ liệu và NLP
 transformers>=4.20.0
@@ -23,3 +24,11 @@ requests>=2.25.0
 aiofiles>=0.8.0
 openpyxl>=3.0.0
 xlrd>=2.0.0
+
+# Các thư viện AI
+openai>=1.10.0
+google-generativeai>=0.4.0
+
+#Python 3.10
+#Cuda -v 11.8
+#Cudnn -v 8.5

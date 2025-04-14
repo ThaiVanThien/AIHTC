@@ -1,153 +1,124 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form, BackgroundTasks
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Form, Depends
 from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional, List
-import os
-import shutil
 from pathlib import Path
+import shutil
 
-from app.services.nlp_service import nlp_service
+from app.core.config import settings
+from app.services.nlp_factory import nlp_factory
 
-router = APIRouter()
+router = APIRouter(
+    responses={404: {"description": "Not found"}},
+)
 
-class QuestionRequest(BaseModel):
-    """Mô hình yêu cầu câu hỏi"""
-    question: str = Field(..., description="Câu hỏi cần trả lời", example="Doanh thu quý 1 là bao nhiêu?")
-    context: str = Field(..., description="Ngữ cảnh chứa câu trả lời", 
-                      example="Doanh thu quý 1 là 500 tỷ đồng, tăng 20% so với cùng kỳ năm ngoái.")
-
-class TrainingRequest(BaseModel):
-    """Mô hình yêu cầu huấn luyện"""
-    model_name: str = Field(..., description="Tên mô hình sẽ được lưu", example="accounting_model_v1")
-    epochs: int = Field(3, description="Số epochs huấn luyện", example=3)
-    batch_size: int = Field(8, description="Kích thước batch", example=8)
-
-
-@router.get("/status", response_model=Dict[str, Any], summary="Trạng thái NLP")
-def get_nlp_status():
+@router.get("/status", response_model=Dict[str, Any], summary="Trạng thái tất cả dịch vụ NLP")
+async def get_nlp_status():
     """
-    Kiểm tra trạng thái của dịch vụ NLP
+    Lấy trạng thái hiện tại của tất cả các dịch vụ NLP:
+    - ViMRC: Mô hình trả lời câu hỏi tiếng Việt
+    - OpenAI: Kết nối đến API của OpenAI
+    - Gemini: Kết nối đến API của Google
     """
-    return {
-        "model_loaded": nlp_service.is_model_loaded,
-        "model_type": "QA (Question Answering)"
-    }
+    return nlp_factory.get_all_services_status()
 
-
-@router.post("/answer-question", response_model=Dict[str, Any], summary="Trả lời câu hỏi")
-def answer_question(request: QuestionRequest):
+@router.post("/compare", response_model=Dict[str, Any], summary="So sánh câu trả lời từ tất cả dịch vụ")
+async def compare_answers(question: str, context: str):
     """
-    Trả lời câu hỏi dựa trên ngữ cảnh sử dụng mô hình vi-mrc
+    Trả lời câu hỏi sử dụng tất cả các dịch vụ NLP có sẵn (ViMRC, OpenAI, Gemini) và trả về kết quả so sánh
     
     - **question**: Câu hỏi cần trả lời
-    - **context**: Đoạn văn bản chứa câu trả lời
+    - **context**: Ngữ cảnh/đoạn văn chứa câu trả lời
     
-    Ví dụ:
-    - Câu hỏi: "Doanh thu quý 1 là bao nhiêu?"
-    - Ngữ cảnh: "Doanh thu quý 1 là 500 tỷ đồng, tăng 20% so với cùng kỳ năm ngoái."
-    - Kết quả: "500 tỷ đồng"
+    Kết quả sẽ bao gồm câu trả lời từ mỗi dịch vụ để dễ dàng so sánh.
     """
     try:
-        result = nlp_service.answer_question(request.question, request.context)
-        return result
+        results = nlp_factory.answer_with_all_services(question, context)
+        return {
+            "question": question,
+            "context": context,
+            "results": results
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi khi xử lý câu hỏi: {str(e)}")
 
-
-@router.post("/upload-training-file", response_model=Dict[str, Any], summary="Tải lên tệp huấn luyện")
-async def upload_training_file(
-    file: UploadFile = File(...),
-    file_type: str = Form(..., description="Loại tập tin (json, csv, excel)")
-):
+@router.post("/set-service", response_model=Dict[str, Any], summary="Đặt dịch vụ NLP mặc định")
+async def set_default_service(service: str):
     """
-    Tải lên tệp dữ liệu huấn luyện cho mô hình NLP
+    Đặt dịch vụ NLP mặc định được sử dụng khi không có chỉ định cụ thể
     
-    - **file**: Tệp dữ liệu huấn luyện
-    - **file_type**: Loại tệp (json, csv, excel)
+    - **service**: Loại dịch vụ (openai, gemini, vimrc)
     
-    Dữ liệu trong tệp phải có định dạng phù hợp:
-    - JSON: Mảng các đối tượng với các trường "question", "context", "answer"
-    - CSV/Excel: Các cột "question", "context", "answer"
+    Dịch vụ mặc định sẽ được sử dụng khi gọi API /answer mà không chỉ định tham số service.
+    """
+    if nlp_factory.set_default_service(service):
+        return {"success": True, "message": f"Đã đặt {service} làm dịch vụ mặc định"}
+    else:
+        raise HTTPException(status_code=400, detail=f"Dịch vụ không hợp lệ: {service}")
+
+@router.post("/clear-cache", response_model=Dict[str, Any], summary="Xóa cache Hugging Face")
+async def clear_huggingface_cache():
+    """
+    Xóa tất cả cache của Hugging Face để giải phóng không gian đĩa
+    
+    Cache Hugging Face thường chiếm nhiều dung lượng sau khi tải các mô hình lớn.
+    Sử dụng endpoint này để xóa cache và giải phóng dung lượng đĩa.
     """
     try:
-        # Tạo thư mục lưu trữ file nếu chưa tồn tại
-        upload_dir = Path("./data/training")
-        upload_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Tạo đường dẫn lưu file
-        file_extension = file_type.lower()
-        if file_extension not in ["json", "csv", "xlsx", "xls"]:
-            raise HTTPException(status_code=400, detail="Định dạng tệp không được hỗ trợ. Chỉ chấp nhận JSON, CSV, hoặc Excel.")
-        
-        # Tạo tên file mới với timestamp để tránh trùng lặp
-        timestamp = int(os.path.getmtime(upload_dir) if os.path.exists(upload_dir) else 0)
-        file_name = f"training_data_{timestamp}.{file_extension}"
-        file_path = upload_dir / file_name
-        
-        # Lưu file
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-            
-        return {
-            "filename": file_name,
-            "file_path": str(file_path),
-            "file_type": file_type,
-            "status": "success",
-            "message": f"Đã tải lên tệp huấn luyện thành công. Sử dụng endpoint /train-model để bắt đầu huấn luyện."
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Lỗi khi tải lên tệp huấn luyện: {str(e)}")
-
-
-@router.post("/train-model", response_model=Dict[str, Any], summary="Huấn luyện mô hình")
-async def train_model(request: TrainingRequest, background_tasks: BackgroundTasks):
-    """
-    Bắt đầu huấn luyện mô hình với dữ liệu đã tải lên
-    
-    - **model_name**: Tên mô hình sẽ được lưu
-    - **epochs**: Số epochs huấn luyện
-    - **batch_size**: Kích thước batch
-    
-    Quá trình huấn luyện sẽ được thực hiện trong background và có thể mất một thời gian.
-    Trạng thái huấn luyện có thể kiểm tra qua endpoint /training-status.
-    """
-    try:
-        # Kiểm tra xem có tệp huấn luyện nào đã được tải lên chưa
-        upload_dir = Path("./data/training")
-        if not upload_dir.exists() or not any(upload_dir.iterdir()):
-            raise HTTPException(
-                status_code=400, 
-                detail="Không tìm thấy tệp huấn luyện. Vui lòng tải lên tệp huấn luyện trước khi bắt đầu huấn luyện."
-            )
-        
-        # Bắt đầu quá trình huấn luyện trong background
-        background_tasks.add_task(
-            nlp_service.train_model, 
-            model_name=request.model_name,
-            training_dir=str(upload_dir),
-            epochs=request.epochs,
-            batch_size=request.batch_size
-        )
-        
-        return {
-            "status": "started",
-            "message": "Quá trình huấn luyện đã bắt đầu. Kiểm tra trạng thái thông qua endpoint /training-status.",
-            "model_name": request.model_name,
-            "config": {
-                "epochs": request.epochs,
-                "batch_size": request.batch_size
+        # Xóa cache của Hugging Face từ đường dẫn cấu hình
+        cache_dir = Path(settings.HUGGINGFACE_CACHE_DIR).expanduser().resolve()
+        if cache_dir.exists():
+            shutil.rmtree(cache_dir)
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            return {
+                "success": True,
+                "message": f"Đã xóa cache Hugging Face tại {cache_dir}"
             }
-        }
+        else:
+            return {
+                "success": True,
+                "message": f"Thư mục cache {cache_dir} không tồn tại, không cần xóa"
+            }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Lỗi khi bắt đầu huấn luyện: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Lỗi khi xóa cache: {str(e)}")
 
-
-@router.get("/training-status", response_model=Dict[str, Any], summary="Trạng thái huấn luyện")
-def get_training_status():
+@router.get("/config", response_model=Dict[str, Any], summary="Xem cấu hình NLP")
+def get_nlp_config():
     """
-    Kiểm tra trạng thái huấn luyện hiện tại
+    Xem cấu hình hiện tại của các dịch vụ NLP, bao gồm:
+    - Đường dẫn thư mục chứa mô hình
+    - Đường dẫn thư mục dữ liệu huấn luyện
+    - Tên mô hình mặc định
+    - Dịch vụ mặc định
+    """
+    return {
+        "models_dir": str(settings.MODELS_DIR),
+        "training_data_dir": str(settings.TRAINING_DATA_DIR),
+        "default_model_name": settings.DEFAULT_MODEL_NAME,
+        "default_service": nlp_factory.default_service,
+        "huggingface_cache_dir": str(Path(settings.HUGGINGFACE_CACHE_DIR).expanduser())
+    }
+
+@router.post("/answer", response_model=Dict[str, Any], summary="Trả lời câu hỏi (điều hướng)")
+async def answer_question(question: str, context: str, service: str = None):
+    """
+    Điều hướng yêu cầu trả lời câu hỏi đến dịch vụ thích hợp
+    
+    - **question**: Câu hỏi cần trả lời
+    - **context**: Ngữ cảnh/đoạn văn chứa câu trả lời
+    - **service**: Loại dịch vụ NLP (openai, gemini, vimrc). Để trống để sử dụng dịch vụ mặc định.
+    
+    Endpoint này sẽ điều hướng yêu cầu đến dịch vụ thích hợp. Bạn có thể sử dụng trực tiếp:
+    - /vimrc/answer: Cho mô hình vi-mrc
+    - /cloud/answer?provider=openai: Cho OpenAI
+    - /cloud/answer?provider=gemini: Cho Gemini
     """
     try:
-        status = nlp_service.get_training_status()
-        return status
+        service_obj = nlp_factory.get_service(service)
+        result = service_obj.answer_question(question, context)
+        
+        # Thêm thông tin về loại service đã sử dụng
+        result["service_used"] = service or nlp_factory.default_service
+        
+        return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Lỗi khi lấy trạng thái huấn luyện: {str(e)}") 
+        raise HTTPException(status_code=500, detail=f"Lỗi khi xử lý câu hỏi: {str(e)}") 
