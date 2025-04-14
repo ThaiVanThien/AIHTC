@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Hub</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+    <link rel="stylesheet" href="/static/css/enhanced-chat.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+    
+    <!-- Set primary color CSS variable -->
+    <style>
+        :root {
+            --primary-color: #0f67ff;
+            --primary-color-rgb: 15, 103, 255;
+            --success-color: #10a37f;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Chat Hub</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-content">
+                <!-- New Chat Button -->
+                <button class="new-chat-btn" id="new-chat-btn">
+                    <i class="fas fa-plus"></i>
+                    <span>New Chat</span>
+                </button>
+                
+                <!-- Chat History -->
+                <div class="chat-history">
+                    <div class="history-header">
+                        <div class="history-title">Chat History</div>
+                        <button class="clear-history-btn" id="clear-history-btn" title="Clear all history">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <!-- Chat history items will be loaded dynamically -->
+                </div>
+                
+                <!-- AI Provider Selection -->
+                <div class="ai-selector">
+                    <div class="ai-selector-title">Choose AI Provider</div>
+                    <div class="provider-buttons">
+                        <button class="provider-btn active" data-provider="vimrc">
+                            <i class="fas fa-robot"></i> VI-MRC
+                        </button>
+                        <button class="provider-btn" data-provider="openai">
+                            <i class="fas fa-comment-dots"></i> OpenAI
+                        </button>
+                        <button class="provider-btn" data-provider="gemini">
+                            <i class="fas fa-star"></i> Gemini
+                        </button>
+                    </div>
+                    
+                    <!-- Model Selection -->
+                    <select class="model-select" id="model-select">
+                        <!-- Models will be populated dynamically -->
+                    </select>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="chat-header">
+                <button class="toggle-sidebar" id="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="chat-title">VI-MRC Assistant</div>
+                <div class="actions-menu">
+                    <button class="action-btn" id="clear-chat-btn" title="Clear current chat">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <button class="action-btn" id="dark-mode-toggle" title="Toggle dark mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </header>
+            
+            <div class="chat-container">
+                <div class="messages-wrap" id="messages-wrap">
+                    <!-- Messages will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <form class="chat-form" id="chat-form">
+                    <div class="chat-input-wrap">
+                        <textarea 
+                            class="chat-input" 
+                            id="chat-input" 
+                            placeholder="Type your message here..."
+                            rows="1"
+                        ></textarea>
+                        <button type="submit" class="send-button" id="send-button" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="chat-input-actions">
+                        <div class="chat-instructions">
+                            <div class="instruction-item">
+                                <i class="fas fa-keyboard"></i>
+                                <span>Press Enter to send</span>
+                            </div>
+                            <div class="instruction-item">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>Shift+Enter for new line</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/lib/marked.min.js"></script>
+    <script src="/static/js/lib/prism.min.js"></script>
+    <script src="/static/js/lib/prism-python.min.js"></script>
+    <script src="/static/js/lib/prism-javascript.min.js"></script>
+    <script src="/static/js/lib/prism-json.min.js"></script>
+    <script src="/static/js/enhanced-chat.js"></script>
+</body>
+</html> 

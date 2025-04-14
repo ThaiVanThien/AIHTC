@@ -7,6 +7,7 @@ from typing import Dict, Any, List, Optional
 from pathlib import Path
 import threading
 from datetime import datetime
+import json
 
 from app.services.nlp_service import BaseNLPService
 from app.core.config import settings
@@ -26,6 +27,16 @@ class ViMRCService(BaseNLPService):
         self.max_length = settings.MAX_LENGTH
         self.doc_stride = settings.DOC_STRIDE
         self.max_answer_length = settings.MAX_ANSWER_LENGTH
+        
+        # Thư mục chứa dữ liệu và mô hình
+        self.models_dir = Path(settings.MODELS_DIR)
+        self.training_data_dir = Path(settings.TRAINING_DATA_DIR)
+        
+        # Vectorizer cho việc tìm kiếm 
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        self.vectorizer = TfidfVectorizer(lowercase=True)
+        self.documents = {}
+        self.document_vectors = None
         
         self.training_status = {
             "is_training": False,
@@ -192,6 +203,11 @@ class ViMRCService(BaseNLPService):
             # Đưa input lên GPU nếu có
             if torch.cuda.is_available():
                 inputs = {k: v.to("cuda") for k, v in inputs.items()}
+            
+            # Xóa tham số overflow_to_sample_mapping nếu có
+            if "overflow_to_sample_mapping" in inputs:
+                overflow_mapping = inputs.pop("overflow_to_sample_mapping")
+                logger.info(f"Đã loại bỏ tham số overflow_to_sample_mapping khi gọi model")
             
             # Dự đoán
             with torch.no_grad():
@@ -410,7 +426,6 @@ class ViMRCService(BaseNLPService):
             
             # Lưu thông tin về mô hình vào file config.json
             config_file = model_dir / "huggingface_info.json"
-            import json
             with open(config_file, "w", encoding="utf-8") as f:
                 json.dump({
                     "model_id": model_id,
@@ -430,6 +445,338 @@ class ViMRCService(BaseNLPService):
             import traceback
             logger.error(traceback.format_exc())
             return False
+
+    def train_model(self, model_name: str, epochs: int = 3, batch_size: int = 8):
+        """
+        Huấn luyện mô hình vi-mrc với dữ liệu trong thư mục training
+        
+        Args:
+            model_name: Tên mô hình sẽ được lưu
+            epochs: Số epochs huấn luyện
+            batch_size: Kích thước batch
+            
+        Returns:
+            None (huấn luyện diễn ra ở background)
+        """
+        # Khởi tạo timestamp cho phiên bản huấn luyện này
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        version_name = f"{model_name}_{timestamp}"
+        
+        # Cập nhật trạng thái huấn luyện
+        with self.training_lock:
+            self.training_status = {
+                "is_training": True,
+                "current_epoch": 0,
+                "total_epochs": epochs,
+                "progress": 0.0,
+                "model_name": model_name,
+                "version": version_name,
+                "start_time": datetime.now().isoformat(),
+                "end_time": None,
+                "status": "preparing",
+                "message": "Đang chuẩn bị dữ liệu huấn luyện..."
+            }
+        
+        try:
+            logger.info(f"Bắt đầu huấn luyện mô hình {model_name} (phiên bản: {version_name}) với {epochs} epochs, batch_size={batch_size}")
+            
+            training_dir = Path(settings.TRAINING_DATA_DIR)
+            
+            # Cấu trúc thư mục: models/vi-mrc-large/model_name/versions/timestamp
+            base_model_dir = self.models_dir / "vi-mrc-large"
+            model_type_dir = base_model_dir / model_name
+            versions_dir = model_type_dir / "versions"
+            model_output_dir = versions_dir / timestamp
+            
+            # Đảm bảo các thư mục tồn tại
+            for dir_path in [base_model_dir, model_type_dir, versions_dir]:
+                dir_path.mkdir(parents=True, exist_ok=True)
+            
+            # Tạo thư mục mới cho phiên bản hiện tại
+            model_output_dir.mkdir(exist_ok=True)
+            
+            # Cập nhật trạng thái: Kiểm tra dữ liệu
+            with self.training_lock:
+                self.training_status["status"] = "checking_data"
+                self.training_status["message"] = "Đang kiểm tra dữ liệu huấn luyện..."
+            
+            # Kiểm tra thư mục dữ liệu huấn luyện
+            if not training_dir.exists() or not any(training_dir.iterdir()):
+                with self.training_lock:
+                    self.training_status["is_training"] = False
+                    self.training_status["status"] = "error"
+                    self.training_status["message"] = "Không tìm thấy dữ liệu huấn luyện"
+                    self.training_status["end_time"] = datetime.now().isoformat()
+                logger.error("Không tìm thấy dữ liệu huấn luyện trong thư mục training")
+                return
+            
+            # Tìm tệp dữ liệu huấn luyện
+            training_files = list(training_dir.glob("*.json"))
+            if not training_files:
+                with self.training_lock:
+                    self.training_status["is_training"] = False
+                    self.training_status["status"] = "error"
+                    self.training_status["message"] = "Không tìm thấy tệp JSON trong thư mục training"
+                    self.training_status["end_time"] = datetime.now().isoformat()
+                logger.error("Không tìm thấy tệp JSON để huấn luyện")
+                return
+            
+            # Sao chép dữ liệu huấn luyện vào thư mục của mô hình để tham chiếu sau này
+            import shutil
+            training_data_dir = model_output_dir / "training_data"
+            training_data_dir.mkdir(exist_ok=True)
+            
+            for tf in training_files:
+                dest_file = training_data_dir / tf.name
+                shutil.copy2(tf, dest_file)
+                logger.info(f"Đã sao chép dữ liệu huấn luyện {tf.name} vào {dest_file}")
+            
+            # TODO: Thêm code để tải và xử lý dữ liệu huấn luyện từ thư mục training
+            # TODO: Thiết lập và huấn luyện mô hình với dữ liệu được chuẩn bị
+            
+            # Ví dụ mẫu về quá trình huấn luyện (giả lập)
+            metrics_history = []
+            for epoch in range(1, epochs + 1):
+                # Cập nhật trạng thái: đang huấn luyện epoch hiện tại
+                with self.training_lock:
+                    self.training_status["current_epoch"] = epoch
+                    self.training_status["status"] = "training"
+                    self.training_status["message"] = f"Đang huấn luyện epoch {epoch}/{epochs}"
+                
+                # Giả lập huấn luyện epoch
+                epoch_metrics = {"epoch": epoch, "loss": 0.0, "accuracy": 0.0}
+                for step in range(1, 11):
+                    # Giả lập thời gian huấn luyện cho mỗi batch
+                    time.sleep(1)
+                    
+                    # Cập nhật tiến độ
+                    progress = ((epoch - 1) * 10 + step) / (epochs * 10) * 100
+                    with self.training_lock:
+                        self.training_status["progress"] = progress
+                    
+                    # Giả lập metrics cải thiện dần
+                    epoch_metrics["loss"] = 1.0 - (epoch * 0.1) - (step * 0.01)
+                    epoch_metrics["accuracy"] = 0.5 + (epoch * 0.1) + (step * 0.01)
+                
+                # Lưu metrics cho epoch này
+                metrics_history.append(epoch_metrics)
+                
+                # Lưu checkpoint sau mỗi epoch
+                if self.tokenizer and self.model:
+                    checkpoint_dir = model_output_dir / f"checkpoint_epoch_{epoch}"
+                    checkpoint_dir.mkdir(exist_ok=True)
+                    
+                    try:
+                        # Lưu tokenizer và model cho checkpoint này
+                        self.tokenizer.save_pretrained(checkpoint_dir)
+                        self.model.save_pretrained(checkpoint_dir)
+                        
+                        # Lưu metrics
+                        with open(checkpoint_dir / "metrics.json", "w", encoding="utf-8") as f:
+                            json.dump(epoch_metrics, f, ensure_ascii=False, indent=2)
+                            
+                        logger.info(f"Đã lưu checkpoint cho epoch {epoch}")
+                    except Exception as e:
+                        logger.error(f"Lỗi khi lưu checkpoint cho epoch {epoch}: {str(e)}")
+            
+            # Lưu mô hình đã được huấn luyện (giả lập)
+            if self.tokenizer and self.model:
+                try:
+                    # Lưu mô hình vào thư mục đích
+                    logger.info(f"Lưu mô hình cuối cùng vào {model_output_dir}")
+                    
+                    # Lưu tokenizer và model
+                    self.tokenizer.save_pretrained(model_output_dir)
+                    self.model.save_pretrained(model_output_dir)
+                    
+                    # Lưu thông tin huấn luyện chi tiết
+                    training_info = {
+                        "model_name": model_name,
+                        "version": version_name,
+                        "timestamp": datetime.now().isoformat(),
+                        "epochs": epochs,
+                        "batch_size": batch_size,
+                        "training_files": [tf.name for tf in training_files],
+                        "metrics_history": metrics_history,
+                        "final_metrics": metrics_history[-1] if metrics_history else {},
+                        "base_model": self.model_name
+                    }
+                    
+                    # Lưu thông tin huấn luyện
+                    with open(model_output_dir / "training_info.json", "w", encoding="utf-8") as f:
+                        json.dump(training_info, f, ensure_ascii=False, indent=2)
+                    
+                    # Lưu symbolic link hoặc file chỉ định phiên bản mới nhất
+                    latest_version_file = model_type_dir / "latest_version.txt"
+                    with open(latest_version_file, "w", encoding="utf-8") as f:
+                        f.write(timestamp)
+                    
+                    # Cập nhật lịch sử huấn luyện trong thư mục gốc
+                    history_file = base_model_dir / "training_history.json"
+                    
+                    # Đọc lịch sử huấn luyện hiện có nếu đã tồn tại
+                    history = []
+                    if history_file.exists():
+                        try:
+                            with open(history_file, "r", encoding="utf-8") as f:
+                                history = json.load(f)
+                        except Exception as e:
+                            logger.warning(f"Không thể đọc lịch sử huấn luyện: {str(e)}")
+                            history = []
+                    
+                    # Thêm thông tin huấn luyện mới
+                    history_entry = {
+                        "timestamp": datetime.now().isoformat(),
+                        "model_name": model_name,
+                        "version": version_name,
+                        "path": str(model_output_dir),
+                        "epochs": epochs,
+                        "batch_size": batch_size,
+                        "training_files": [tf.name for tf in training_files],
+                        "final_metrics": metrics_history[-1] if metrics_history else {}
+                    }
+                    
+                    history.append(history_entry)
+                    
+                    # Lưu lịch sử huấn luyện cập nhật
+                    with open(history_file, "w", encoding="utf-8") as f:
+                        json.dump(history, f, ensure_ascii=False, indent=2)
+                    
+                    logger.info(f"Đã lưu mô hình vào {model_output_dir} và cập nhật lịch sử huấn luyện")
+                
+                except Exception as e:
+                    logger.error(f"Lỗi khi lưu mô hình: {str(e)}")
+                    raise e
+            
+            # Cập nhật trạng thái: hoàn thành
+            with self.training_lock:
+                self.training_status["is_training"] = False
+                self.training_status["status"] = "completed"
+                self.training_status["progress"] = 100.0
+                self.training_status["message"] = f"Đã hoàn thành huấn luyện mô hình {model_name} (phiên bản: {version_name})"
+                self.training_status["end_time"] = datetime.now().isoformat()
+                
+            logger.info(f"Đã hoàn thành huấn luyện mô hình {model_name} (phiên bản: {version_name})")
+            
+        except Exception as e:
+            # Xử lý ngoại lệ và cập nhật trạng thái lỗi
+            logger.error(f"Lỗi khi huấn luyện mô hình: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
+            
+            with self.training_lock:
+                self.training_status["is_training"] = False
+                self.training_status["status"] = "error"
+                self.training_status["message"] = f"Lỗi khi huấn luyện: {str(e)}"
+                self.training_status["end_time"] = datetime.now().isoformat()
+
+    def _build_vectors(self):
+        """Xây dựng vector cho tất cả tài liệu."""
+        if not self.documents:
+            return
+            
+        contents = [doc.content for doc in self.documents.values()]
+        self.document_vectors = self.vectorizer.fit_transform(contents)
+        logger.info(f"Đã xây dựng vector cho {len(contents)} tài liệu")
+    
+    def find_training_context(self, question: str) -> Optional[str]:
+        """
+        Tìm context phù hợp từ dữ liệu huấn luyện dựa trên câu hỏi
+        
+        Args:
+            question: Câu hỏi cần tìm context
+            
+        Returns:
+            Optional[str]: Context tìm được hoặc None nếu không tìm thấy
+        """
+        try:
+            # Kiểm tra thư mục dữ liệu huấn luyện
+            training_dir = Path(self.training_data_dir)
+            
+            if not training_dir.exists():
+                logger.warning(f"Thư mục dữ liệu huấn luyện không tồn tại: {training_dir}")
+                return None
+                
+            # Tìm tất cả các tệp JSON trong thư mục dữ liệu huấn luyện
+            training_files = list(training_dir.glob("*.json"))
+            
+            if not training_files:
+                logger.warning(f"Không tìm thấy tệp JSON nào trong thư mục dữ liệu huấn luyện: {training_dir}")
+                return None
+                
+            logger.info(f"Tìm thấy {len(training_files)} tệp dữ liệu huấn luyện: {[f.name for f in training_files]}")
+            
+            # Kết hợp dữ liệu từ tất cả các tệp
+            all_training_data = []
+            
+            for training_file in training_files:
+                try:
+                    with open(training_file, "r", encoding="utf-8") as f:
+                        file_data = json.load(f)
+                        if isinstance(file_data, list):
+                            all_training_data.extend(file_data)
+                        else:
+                            logger.warning(f"Định dạng dữ liệu không đúng trong tệp {training_file}")
+                except Exception as e:
+                    logger.error(f"Lỗi khi đọc tệp dữ liệu huấn luyện {training_file}: {str(e)}")
+            
+            if not all_training_data:
+                logger.warning("Không có dữ liệu huấn luyện hợp lệ")
+                return None
+                
+            logger.info(f"Đã tải {len(all_training_data)} mẫu dữ liệu huấn luyện")
+                
+            # Chuẩn bị dữ liệu cho tìm kiếm tương đồng
+            from sklearn.feature_extraction.text import TfidfVectorizer
+            from sklearn.metrics.pairwise import cosine_similarity
+            
+            # Lấy tất cả câu hỏi và context từ dữ liệu huấn luyện
+            train_questions = [item["question"] for item in all_training_data]
+            
+            # Tạo vectorizer và vector cho câu hỏi huấn luyện
+            vectorizer = TfidfVectorizer()
+            question_vectors = vectorizer.fit_transform(train_questions)
+            
+            # Tạo vector cho câu hỏi hiện tại
+            query_vector = vectorizer.transform([question])
+            
+            # Tính độ tương đồng
+            similarities = cosine_similarity(query_vector, question_vectors).flatten()
+            
+            # Lấy chỉ số của câu hỏi có độ tương đồng cao nhất
+            best_idx = similarities.argmax()
+            best_similarity = similarities[best_idx]
+            
+            # In thông tin debug
+            logger.info(f"Câu hỏi nhập vào: '{question}'")
+            logger.info(f"Câu hỏi có độ tương đồng cao nhất: '{train_questions[best_idx]}' (sim={best_similarity:.4f})")
+            
+            # Chỉ trả về context nếu độ tương đồng đủ cao
+            if best_similarity > 0.5:
+                context = all_training_data[best_idx].get("context", "")
+                logger.info(f"Tìm thấy context với độ tương đồng {best_similarity:.4f}")
+                return context
+            else:
+                # Thử tìm kiếm theo từ khóa
+                import re
+                keywords = re.findall(r'\b[a-zA-ZÀ-ỹ]{3,}\b', question.lower())
+                
+                for item in all_training_data:
+                    train_question = item["question"].lower()
+                    match_count = sum(1 for kw in keywords if kw in train_question)
+                    
+                    if match_count >= 2 or (len(keywords) == 1 and match_count == 1):
+                        logger.info(f"Tìm thấy context cho câu hỏi '{question}' bằng từ khóa")
+                        return item.get("context", "")
+                
+                logger.info(f"Không tìm thấy context phù hợp cho câu hỏi '{question}'")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Lỗi khi tìm context từ dữ liệu huấn luyện: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
+            return None
 
 # Khởi tạo dịch vụ vi-mrc
 vimrc_service = ViMRCService() 

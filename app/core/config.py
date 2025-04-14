@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "FastAPI Demo App"
     DESCRIPTION: str = "Ứng dụng demo sử dụng FastAPI và Swagger UI phiên bản mới nhất"
     VERSION: str = "0.1.0"
+    APP_VERSION: str = "1.1.0"
+    
+    # Đường dẫn
+    BASE_DIR: str = str(Path(__file__).resolve().parent.parent.parent)
     
     # CORS settings
     BACKEND_CORS_ORIGINS: List[str] = ["*"]
@@ -23,7 +27,7 @@ class Settings(BaseSettings):
     # API Keys
     OPENAI_API_KEY: Optional[str] = None
     HUGGINGFACE_API_KEY: Optional[str] = None
-    GOOGLE_API_KEY: Optional[str] = None
+    GOOGLE_API_KEY: Optional[str] = os.getenv("GOOGLE_API_KEY")
     
     # Model configs
     MODEL_VI_MRC_PATH: str = "vinai/vi-mrc-large"

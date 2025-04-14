@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 import logging
 import os
 import sys
@@ -21,7 +22,8 @@ load_dotenv(verbose=True)
 
 from app.core.config import settings
 from app.core.logging_config import setup_logging
-from app.routers import nlp, vimrc, cloud_ai
+from app.routers import nlp, vimrc, cloud_ai, chat
+from app.middleware.rate_limiter import RateLimitMiddleware, rate_limiter
 
 # Thiết lập logging
 logger = setup_logging()
@@ -34,35 +36,6 @@ APP_PID = os.getpid()
 # Rate limiting settings
 RATE_LIMIT_DURATION = 60  # seconds
 RATE_LIMIT_REQUESTS = 100  # requests per duration
-
-# Class cho rate limiting
-class RateLimiter:
-    def __init__(self, duration: int = RATE_LIMIT_DURATION, requests: int = RATE_LIMIT_REQUESTS):
-        self.requests_per_window = requests
-        self.window_duration = duration
-        self.clients: Dict[str, List[float]] = {}
-        
-    def is_rate_limited(self, client_id: str) -> bool:
-        now = time.time()
-        if client_id not in self.clients:
-            self.clients[client_id] = [now]
-            return False
-            
-        # Lọc ra các request trong khoảng thời gian hiện tại
-        client_requests = [req_time for req_time in self.clients[client_id] 
-                          if now - req_time < self.window_duration]
-        
-        # Cập nhật danh sách request của client
-        self.clients[client_id] = client_requests
-        
-        # Thêm request hiện tại
-        self.clients[client_id].append(now)
-        
-        # Kiểm tra giới hạn
-        return len(self.clients[client_id]) > self.requests_per_window
-
-# Tạo instance của rate limiter
-rate_limiter = RateLimiter()
 
 # Middleware đo hiệu suất
 class PerformanceMiddleware(BaseHTTPMiddleware):
@@ -93,24 +66,6 @@ class PerformanceMiddleware(BaseHTTPMiddleware):
             process_time = time.time() - start_time
             logger.error(f"Request {request_id} failed: {str(e)} in {process_time:.4f}s")
             raise
-
-# Middleware giới hạn tốc độ truy cập
-class RateLimitMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        # Xác định client dựa trên IP hoặc header authorization
-        client_id = request.client.host
-        if "authorization" in request.headers:
-            client_id = request.headers["authorization"]
-            
-        # Kiểm tra giới hạn
-        if rate_limiter.is_rate_limited(client_id):
-            logger.warning(f"Rate limit exceeded for client {client_id}")
-            return JSONResponse(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                content={"detail": "Quá nhiều yêu cầu. Vui lòng thử lại sau."}
-            )
-            
-        return await call_next(request)
 
 # Xử lý exception toàn cục
 async def global_exception_handler(request: Request, exc: Exception):
@@ -207,9 +162,13 @@ api_router = APIRouter(prefix="/api/v1")
 api_router.include_router(nlp.router, tags=["nlp"])
 api_router.include_router(vimrc.router, tags=["vi-mrc"])
 api_router.include_router(cloud_ai.router, tags=["cloud-ai"])
+api_router.include_router(chat.router, tags=["chat"])
 
 # Đăng ký router API gốc vào ứng dụng
 app.include_router(api_router)
+
+# Thêm cấu hình để phục vụ các static files
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 
 def is_port_in_use(port: int) -> bool:
@@ -337,9 +296,16 @@ def root(request: Request):
 @app.on_event("startup")
 async def startup_event():
     """
-    Sự kiện khi ứng dụng khởi động
+    Khởi tạo ứng dụng và tạo các thư mục cần thiết khi khởi động
     """
-    logger.info(f"Ứng dụng đang chạy với PID: {APP_PID}")
+    import os
+    from app.core.config import settings
+    
+    # Tạo thư mục templates nếu chưa tồn tại
+    os.makedirs(os.path.join(settings.BASE_DIR, "app", "templates"), exist_ok=True)
+    
+    # Log thông tin khởi động
+    logger.info(f"Starting up application version: {settings.APP_VERSION}")
     
     # Kiểm tra và giải phóng cổng nếu nó đang bị chiếm
     if is_port_in_use(APP_PORT):

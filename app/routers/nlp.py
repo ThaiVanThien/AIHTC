@@ -64,19 +64,21 @@ async def clear_huggingface_cache():
     Sử dụng endpoint này để xóa cache và giải phóng dung lượng đĩa.
     """
     try:
-        # Xóa cache của Hugging Face từ đường dẫn cấu hình
-        cache_dir = Path(settings.HUGGINGFACE_CACHE_DIR).expanduser().resolve()
-        if cache_dir.exists():
-            shutil.rmtree(cache_dir)
-            cache_dir.mkdir(parents=True, exist_ok=True)
+        # Lấy service NLP mặc định
+        service = nlp_factory.get_service()
+        
+        # Sử dụng phương thức clear_cache đã được triển khai trong BaseNLPService
+        success = service.clear_cache()
+        
+        if success:
             return {
                 "success": True,
-                "message": f"Đã xóa cache Hugging Face tại {cache_dir}"
+                "message": f"Đã xóa cache Hugging Face tại {settings.HUGGINGFACE_CACHE_DIR}"
             }
         else:
             return {
-                "success": True,
-                "message": f"Thư mục cache {cache_dir} không tồn tại, không cần xóa"
+                "success": False,
+                "message": f"Thư mục cache {settings.HUGGINGFACE_CACHE_DIR} không tồn tại hoặc không thể xóa"
             }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi khi xóa cache: {str(e)}")

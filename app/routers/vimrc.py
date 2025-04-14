@@ -1,4 +1,7 @@
-from fastapi import APIRouter, HTTPException, BackgroundTasks, Form, Depends
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Form, Depends, UploadFile, File
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from starlette.requests import Request
 from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional, List
 import os
@@ -15,6 +18,9 @@ router = APIRouter(
     tags=["vi-mrc"],
     responses={404: {"description": "Not found"}},
 )
+
+# Templates configuration
+templates = Jinja2Templates(directory="app/templates")
 
 class TrainingRequest(BaseModel):
     """Mô hình yêu cầu huấn luyện"""
@@ -60,7 +66,7 @@ async def answer_question(question: str, context: str):
         raise HTTPException(status_code=500, detail=f"Lỗi khi xử lý câu hỏi: {str(e)}")
 
 @router.post("/train", response_model=Dict[str, Any], summary="Huấn luyện mô hình vi-mrc")
-async def train_model(
+async def train_vimrc_model(
     background_tasks: BackgroundTasks,
     model_name: str = Form(...),
     epochs: int = Form(3),
@@ -291,4 +297,62 @@ async def delete_model(model_name: str):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Lỗi khi xóa mô hình: {str(e)}") 
+        raise HTTPException(status_code=500, detail=f"Lỗi khi xóa mô hình: {str(e)}")
+
+@router.post("/upload-training-file", response_model=Dict[str, Any], summary="Tải lên tệp huấn luyện")
+async def upload_training_file(
+    file: UploadFile = File(...),
+    file_type: str = Form(..., description="Loại tập tin (json, csv, excel)")
+):
+    """
+    Tải lên tệp dữ liệu huấn luyện cho mô hình vi-mrc
+    
+    - **file**: Tệp dữ liệu huấn luyện
+    - **file_type**: Loại tệp (json, csv, excel)
+    
+    Dữ liệu trong tệp phải có định dạng phù hợp:
+    - JSON: Mảng các đối tượng với các trường "question", "context", "answer"
+    - CSV/Excel: Các cột "question", "context", "answer"
+    
+    Tệp được tải lên sẽ được lưu trong thư mục data/training và sẽ được sử dụng khi huấn luyện mô hình.
+    """
+    try:
+        # Tạo thư mục lưu trữ file nếu chưa tồn tại
+        upload_dir = Path(settings.TRAINING_DATA_DIR)
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Tạo đường dẫn lưu file
+        file_extension = file_type.lower()
+        if file_extension not in ["json", "csv", "xlsx", "xls"]:
+            raise HTTPException(status_code=400, detail="Định dạng tệp không được hỗ trợ. Chỉ chấp nhận JSON, CSV, hoặc Excel.")
+        
+        # Tạo tên file mới với timestamp để tránh trùng lặp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        file_name = f"training_data_{timestamp}.{file_extension}"
+        file_path = upload_dir / file_name
+        
+        # Lưu file
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        return {
+            "filename": file_name,
+            "file_path": str(file_path),
+            "file_type": file_type,
+            "status": "success",
+            "message": f"Đã tải lên tệp huấn luyện thành công. Sử dụng endpoint /vimrc/train để bắt đầu huấn luyện."
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi khi tải lên tệp huấn luyện: {str(e)}")
+
+@router.get("/chat", response_class=HTMLResponse, summary="VI-MRC Chat UI")
+async def get_chat_ui(request: Request):
+    """
+    Hiển thị giao diện chat để tương tác với mô hình VI-MRC
+    
+    Giao diện cho phép người dùng đặt câu hỏi và cung cấp ngữ cảnh
+    để nhận câu trả lời từ mô hình VI-MRC
+    """
+    return templates.TemplateResponse("vimrc_chat.html", {"request": request}) 

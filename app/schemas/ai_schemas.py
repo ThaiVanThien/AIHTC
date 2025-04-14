@@ -68,4 +68,53 @@ class ModelInfo(BaseModel):
     description: str = Field(..., description="Mô tả về mô hình")
 
 class ModelsResponse(BaseModel):
-    models: List[ModelInfo] = Field(..., description="Danh sách các mô hình AI có sẵn") 
+    models: List[ModelInfo] = Field(..., description="Danh sách các mô hình AI có sẵn")
+
+class SmartQARequest(BaseModel):
+    question: str = Field(..., description="Câu hỏi cần trả lời")
+    provider: Optional[AIProvider] = Field(
+        AIProvider.GEMINI, 
+        description="Nhà cung cấp AI sử dụng khi cần LLM (openai/gemini)"
+    )
+    model: Optional[str] = Field(
+        "gemini-1.5-flash", 
+        description="Tên mô hình cụ thể muốn sử dụng khi câu hỏi được chuyển sang LLM",
+        example="gemini-1.5-flash"
+    )
+    temperature: Optional[float] = Field(
+        0.7, 
+        description="Nhiệt độ (0.0-1.0) ảnh hưởng đến tính ngẫu nhiên của LLM",
+        example=0.7
+    )
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "question": "Doanh thu quý 1 năm 2023 là bao nhiêu?",
+                "provider": "gemini",
+                "model": "gemini-1.5-flash",
+                "temperature": 0.7
+            }
+        }
+
+class SmartQAResponse(BaseModel):
+    answer: str = Field(..., description="Câu trả lời")
+    source: str = Field(..., description="Nguồn cung cấp câu trả lời (vimrc/llm)")
+    provider: str = Field(..., description="Nhà cung cấp AI đã sử dụng")
+    model: str = Field(..., description="Mô hình AI đã sử dụng") 
+    confidence: Optional[float] = Field(None, description="Độ tin cậy của câu trả lời (nếu có)")
+    has_context: bool = Field(False, description="Có tìm thấy ngữ cảnh phù hợp hay không")
+    processing_time: float = Field(..., description="Thời gian xử lý (giây)")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "answer": "Doanh thu quý 1 năm 2023 là 500 tỷ đồng",
+                "source": "vimrc",
+                "provider": "vimrc", 
+                "model": "vi-mrc-large",
+                "confidence": 0.92,
+                "has_context": True,
+                "processing_time": 0.75
+            }
+        } 
