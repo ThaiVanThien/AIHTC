@@ -36,14 +36,8 @@ class ViMRCConfig(BaseModel):
     models: List[ModelConfig] = [
         ModelConfig(
             name="vi-mrc-large",
-            display_name="VI-MRC Large",
+            display_name="HTC FinBot",
             description="Mô hình trả lời câu hỏi lớn cho tiếng Việt",
-            capabilities=["question-answering"],
-        ),
-        ModelConfig(
-            name="vi-mrc-base",
-            display_name="VI-MRC Base",
-            description="Mô hình trả lời câu hỏi cơ bản cho tiếng Việt",
             capabilities=["question-answering"],
         )
     ]

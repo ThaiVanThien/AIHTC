@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 class Settings(BaseSettings):
-    API_V1_STR: str = "/api/v1"
+    API_V1_STR: str = ""
     PROJECT_NAME: str = "FastAPI Demo App"
     DESCRIPTION: str = "Ứng dụng demo sử dụng FastAPI và Swagger UI phiên bản mới nhất"
     VERSION: str = "0.1.0"

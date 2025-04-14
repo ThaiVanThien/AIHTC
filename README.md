@@ -1,3 +1,93 @@
+# AI Hub Tiếng Việt
+
+Một ứng dụng web với API tích hợp nhiều dịch vụ xử lý ngôn ngữ tự nhiên tiếng Việt, bao gồm giao diện chat đa mô hình.
+
+## Tính năng chính
+
+### 1. Tích hợp đa dịch vụ AI
+- **ViMRC**: Mô hình trả lời câu hỏi tiếng Việt (offline)
+- **OpenAI**: Tích hợp API của OpenAI (GPT-3.5, GPT-4)
+- **Gemini**: Tích hợp API của Google (Gemini Pro)
+
+### 2. Giao diện chat
+- Giao diện web hiện đại hỗ trợ đa thiết bị
+- Chuyển đổi giữa các nhà cung cấp AI
+- Lưu trữ lịch sử trò chuyện
+- Hỗ trợ dark/light mode
+- Hiển thị syntax highlighting cho code
+
+### 3. API đa chức năng
+- Trả lời câu hỏi dựa trên ngữ cảnh
+- Smart QA (kết hợp VI-MRC và LLM)
+- So sánh kết quả từ nhiều mô hình khác nhau
+
+### 4. Tính năng quản trị
+- Theo dõi trạng thái hệ thống
+- Rate limiting
+- Xử lý lỗi tối ưu
+
+## Cài đặt
+
+1. Clone repository:
+```bash
+git clone https://github.com/your-repo/aihtc.git
+cd aihtc
+```
+
+2. Cài đặt các gói phụ thuộc:
+```bash
+pip install -r requirements.txt
+```
+
+3. Tạo file `.env` và cấu hình các API key:
+```
+OPENAI_API_KEY=your_openai_key
+GOOGLE_API_KEY=your_google_key
+```
+
+4. Tải mô hình VI-MRC:
+```bash
+python -c "from transformers import AutoTokenizer, AutoModelForQuestionAnswering; tokenizer = AutoTokenizer.from_pretrained('nguyenvulebinh/vi-mrc-large', local_files_only=False); model = AutoModelForQuestionAnswering.from_pretrained('nguyenvulebinh/vi-mrc-large', local_files_only=False); tokenizer.save_pretrained('data/models/vi-mrc-large'); model.save_pretrained('data/models/vi-mrc-large')"
+```
+
+5. Khởi động ứng dụng:
+```bash
+uvicorn app.main:app --reload --port 8002
+```
+
+6. Truy cập:
+   - Trang chủ/Giao diện chat: http://localhost:8002/
+   - Tài liệu API: http://localhost:8002/docs
+
+## API Endpoints
+
+### Chat API
+- `GET /`: Giao diện người dùng cho chat
+- `POST /chat/send`: Gửi tin nhắn đến AI
+- `POST /chat/smart`: Trả lời câu hỏi thông minh kết hợp VI-MRC và LLM
+- `GET /chat/status`: Kiểm tra trạng thái dịch vụ chat
+- `GET /chat/models`: Lấy danh sách các mô hình AI khả dụng
+
+### VIMRC API
+- `POST /vimrc/answer`: Trả lời câu hỏi bằng VI-MRC
+- `GET /vimrc/status`: Kiểm tra trạng thái mô hình
+
+### Cloud AI API
+- `POST /cloud/openai`: Gọi API của OpenAI
+- `POST /cloud/gemini`: Gọi API của Google Gemini
+
+### API Chung
+- `POST /compare`: So sánh kết quả từ các dịch vụ khác nhau
+- `GET /system`: Xem thông tin và trạng thái hệ thống
+
+## Yêu cầu hệ thống
+- Python 3.10+
+- CUDA 11.8 (cho GPU)
+- CUDNN 8.5 (cho GPU)
+
+## Ghi chú
+Mô hình VI-MRC có kích thước khoảng 1GB, được lưu trong thư mục `data/models`
+
 <p align="center">
   <a href="https://fastapi.tiangolo.com"><img src="https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png" alt="FastAPI"></a>
 </p>

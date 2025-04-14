@@ -14,8 +14,6 @@ from app.services.nlp_factory import nlp_factory
 from app.services.vimrc_service import vimrc_service
 
 router = APIRouter(
-    prefix="/vimrc",
-    tags=["vi-mrc"],
     responses={404: {"description": "Not found"}},
 )
 

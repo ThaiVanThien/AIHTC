@@ -19,11 +19,8 @@ from app.schemas.ai_schemas import SmartQARequest, SmartQAResponse
 from app.routers import nlp
 from app.routers import vimrc
 from app.routers import cloud_ai
-from app.routers import chat
 
 router = APIRouter(
-    prefix="/chat",
-    tags=["chat"],
     responses={404: {"description": "Not found"}},
 )
 
@@ -51,6 +48,7 @@ class ChatRequest(BaseModel):
     model: Optional[str] = Field(None, description="Tên mô hình cụ thể", example="vi-mrc-large")
     temperature: Optional[float] = Field(0.7, description="Nhiệt độ ảnh hưởng đến tính ngẫu nhiên", example=0.7)
     max_tokens: Optional[int] = Field(500, description="Số lượng token tối đa trong phản hồi", example=500)
+    use_training_data: Optional[bool] = Field(True, description="Có sử dụng dữ liệu training không (chỉ áp dụng cho VI-MRC)", example=True)
 
 class ChatResponse(BaseModel):
     content: str = Field(..., description="Nội dung phản hồi từ AI")
@@ -222,6 +220,7 @@ async def send_message(request: ChatRequest):
     - **model**: Tên mô hình cụ thể
     - **temperature**: Nhiệt độ ảnh hưởng đến tính ngẫu nhiên
     - **max_tokens**: Số lượng token tối đa trong phản hồi
+    - **use_training_data**: Có sử dụng dữ liệu training không (chỉ áp dụng cho VI-MRC)
     
     Tự động áp dụng luồng xử lý thông minh:
     1. Phân loại loại câu hỏi (factual/analytical)
@@ -234,6 +233,7 @@ async def send_message(request: ChatRequest):
         model = request.model
         temperature = request.temperature
         max_tokens = request.max_tokens
+        use_training_data = request.use_training_data
         
         # Lấy tin nhắn người dùng mới nhất
         user_messages = [msg for msg in request.messages if msg.role == "user"]
@@ -244,6 +244,56 @@ async def send_message(request: ChatRequest):
         question = last_message.content
         context = last_message.context
         
+        # Nếu provider không phải là vimrc hoặc use_training_data = False, chuyển thẳng vào provider tương ứng
+        if provider != AIProvider.VIMRC or use_training_data is False:
+            if provider == AIProvider.OPENAI:
+                # Đặt model nếu có chỉ định
+                if model:
+                    try:
+                        openai_service.set_model(model)
+                    except Exception as e:
+                        logger.warning(f"Không thể đặt model OpenAI {model}: {str(e)}")
+                
+                # Xây dựng messages
+                messages = [{"role": msg.role, "content": msg.content} for msg in request.messages]
+                    
+                # Gọi API OpenAI
+                response = await openai_service.chat(
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens
+                )
+                
+                return ChatResponse(
+                    content=response["answer"],
+                    provider=AIProvider.OPENAI,
+                    model=openai_service.model_name
+                )
+            elif provider == AIProvider.GEMINI:
+                # Đặt model nếu có chỉ định
+                if model:
+                    try:
+                        gemini_service.set_model(model)
+                    except Exception as e:
+                        logger.warning(f"Không thể đặt model Gemini {model}: {str(e)}")
+                
+                # Xây dựng messages
+                messages = [{"role": msg.role, "content": msg.content} for msg in request.messages]
+                    
+                # Gọi API Gemini
+                response = await gemini_service.chat(
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens
+                )
+                
+                return ChatResponse(
+                    content=response["answer"],
+                    provider=AIProvider.GEMINI,
+                    model=gemini_service.model_name
+                )
+        
+        # Tiếp tục với luồng xử lý hiện tại nếu sử dụng vimrc với use_training_data = True
         # Bước 1: Phân loại loại câu hỏi
         question_type = document_store.classify_question_type(question)
         
@@ -409,85 +459,52 @@ async def get_chat_status():
         }
     }
 
-@router.get("/models")
+@router.get("/models", response_model=Dict[str, Any], summary="Danh sách mô hình AI có sẵn")
 async def get_models():
-    # Lấy danh sách model từ cấu hình AI
-    models = get_all_model_names()
-    
-    # Lấy model mặc định cho từng provider
-    return {
-        "vimrc": {
-            "models": models[AIProvider.VIMRC],
-            "default": ai_settings.vimrc.model_name
-        },
-        "openai": {
-            "models": models[AIProvider.OPENAI],
-            "default": ai_settings.openai.model_name
-        },
-        "gemini": {
-            "models": models[AIProvider.GEMINI],
-            "default": ai_settings.gemini.model_name
-        }
-    }
-
-@router.post("/documents", response_model=Dict[str, Any], summary="Thêm tài liệu mới")
-async def add_document(content: str, metadata: Optional[Dict[str, Any]] = None):
     """
-    Thêm tài liệu mới vào kho lưu trữ để sử dụng cho tìm kiếm và trả lời câu hỏi
+    Lấy danh sách tất cả mô hình AI có sẵn từ các nhà cung cấp khác nhau
     
-    - **content**: Nội dung tài liệu
-    - **metadata**: Metadata của tài liệu (tùy chọn)
+    Thông tin trả về bao gồm:
+    - Danh sách mô hình VI-MRC
+    - Danh sách mô hình OpenAI
+    - Danh sách mô hình Gemini
+    - Mô hình mặc định cho mỗi nhà cung cấp
     """
     try:
-        doc = document_store.add_document(content, metadata)
-        return {
-            "success": True,
-            "message": "Đã thêm tài liệu mới thành công",
-            "doc_id": doc.doc_id
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Lỗi khi thêm tài liệu: {str(e)}")
-
-@router.get("/documents", response_model=Dict[str, Any], summary="Lấy danh sách tài liệu")
-async def get_documents():
-    """
-    Lấy danh sách tất cả tài liệu trong kho lưu trữ
-    """
-    try:
-        docs = [
-            {
-                "doc_id": doc.doc_id,
-                "content_preview": doc.content[:100] + "..." if len(doc.content) > 100 else doc.content,
-                "metadata": doc.metadata
-            }
-            for doc in document_store.documents.values()
-        ]
+        # Lấy danh sách model từ cấu hình AI
+        models = get_all_model_names()
         
+        # Lấy model mặc định cho từng provider
         return {
-            "success": True,
-            "count": len(docs),
-            "documents": docs
+            "vimrc": {
+                "models": models[AIProvider.VIMRC],
+                "default": ai_settings.vimrc.model_name
+            },
+            "openai": {
+                "models": models[AIProvider.OPENAI],
+                "default": ai_settings.openai.model_name
+            },
+            "gemini": {
+                "models": models[AIProvider.GEMINI],
+                "default": ai_settings.gemini.model_name
+            }
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Lỗi khi lấy danh sách tài liệu: {str(e)}")
-
-@router.delete("/documents/{doc_id}", response_model=Dict[str, Any], summary="Xóa tài liệu")
-async def delete_document(doc_id: str):
-    """
-    Xóa tài liệu theo ID
-    
-    - **doc_id**: ID của tài liệu cần xóa
-    """
-    try:
-        success = document_store.delete_document(doc_id)
-        if success:
-            return {
-                "success": True,
-                "message": f"Đã xóa tài liệu {doc_id}"
+        logger.error(f"Lỗi khi lấy danh sách mô hình: {str(e)}")
+        # Trả về danh sách mặc định nếu có lỗi
+        return {
+            "vimrc": {
+                "models": ["vi-mrc-large"],
+                "default": "vi-mrc-large"
+            },
+            "openai": {
+                "models": ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "gpt-3.5-turbo-16k"],
+                "default": "gpt-3.5-turbo"
+            },
+            "gemini": {
+                "models": ["gemini-pro", "gemini-ultra", "gemini-pro-vision"],
+                "default": "gemini-pro"
             }
-        else:
-            raise HTTPException(status_code=404, detail=f"Không tìm thấy tài liệu {doc_id}")
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Lỗi khi xóa tài liệu: {str(e)}") 
+        }
+
+# Các endpoint quản lý tài liệu đã bị loại bỏ (/documents, /documents/{doc_id}) 

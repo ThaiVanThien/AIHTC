@@ -9,8 +9,6 @@ from app.services.gemini_service import gemini_service
 from app.core.config import settings
 
 router = APIRouter(
-    prefix="/cloud",
-    tags=["cloud-ai"],
     responses={404: {"description": "Not found"}},
 )
 

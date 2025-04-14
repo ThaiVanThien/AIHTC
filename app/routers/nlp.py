@@ -41,65 +41,6 @@ async def compare_answers(question: str, context: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi khi xử lý câu hỏi: {str(e)}")
 
-@router.post("/set-service", response_model=Dict[str, Any], summary="Đặt dịch vụ NLP mặc định")
-async def set_default_service(service: str):
-    """
-    Đặt dịch vụ NLP mặc định được sử dụng khi không có chỉ định cụ thể
-    
-    - **service**: Loại dịch vụ (openai, gemini, vimrc)
-    
-    Dịch vụ mặc định sẽ được sử dụng khi gọi API /answer mà không chỉ định tham số service.
-    """
-    if nlp_factory.set_default_service(service):
-        return {"success": True, "message": f"Đã đặt {service} làm dịch vụ mặc định"}
-    else:
-        raise HTTPException(status_code=400, detail=f"Dịch vụ không hợp lệ: {service}")
-
-@router.post("/clear-cache", response_model=Dict[str, Any], summary="Xóa cache Hugging Face")
-async def clear_huggingface_cache():
-    """
-    Xóa tất cả cache của Hugging Face để giải phóng không gian đĩa
-    
-    Cache Hugging Face thường chiếm nhiều dung lượng sau khi tải các mô hình lớn.
-    Sử dụng endpoint này để xóa cache và giải phóng dung lượng đĩa.
-    """
-    try:
-        # Lấy service NLP mặc định
-        service = nlp_factory.get_service()
-        
-        # Sử dụng phương thức clear_cache đã được triển khai trong BaseNLPService
-        success = service.clear_cache()
-        
-        if success:
-            return {
-                "success": True,
-                "message": f"Đã xóa cache Hugging Face tại {settings.HUGGINGFACE_CACHE_DIR}"
-            }
-        else:
-            return {
-                "success": False,
-                "message": f"Thư mục cache {settings.HUGGINGFACE_CACHE_DIR} không tồn tại hoặc không thể xóa"
-            }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Lỗi khi xóa cache: {str(e)}")
-
-@router.get("/config", response_model=Dict[str, Any], summary="Xem cấu hình NLP")
-def get_nlp_config():
-    """
-    Xem cấu hình hiện tại của các dịch vụ NLP, bao gồm:
-    - Đường dẫn thư mục chứa mô hình
-    - Đường dẫn thư mục dữ liệu huấn luyện
-    - Tên mô hình mặc định
-    - Dịch vụ mặc định
-    """
-    return {
-        "models_dir": str(settings.MODELS_DIR),
-        "training_data_dir": str(settings.TRAINING_DATA_DIR),
-        "default_model_name": settings.DEFAULT_MODEL_NAME,
-        "default_service": nlp_factory.default_service,
-        "huggingface_cache_dir": str(Path(settings.HUGGINGFACE_CACHE_DIR).expanduser())
-    }
-
 @router.post("/answer", response_model=Dict[str, Any], summary="Trả lời câu hỏi (điều hướng)")
 async def answer_question(question: str, context: str, service: str = None):
     """

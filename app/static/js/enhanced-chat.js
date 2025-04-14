@@ -8,12 +8,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatForm = document.getElementById('chat-form');
     const messageInput = document.getElementById('chat-input');
     const sendButton = document.getElementById('send-button');
-    const messagesContainer = document.getElementById('messages-wrap');
+    const messagesContainer = document.getElementById('messages-wrap'); // Container chính để cuộn
+    
+    // Tạo phần tử messages-content nếu chưa có
+    let messagesContent = messagesContainer.querySelector('.messages-container');
+    if (!messagesContent) {
+        messagesContent = document.createElement('div');
+        messagesContent.className = 'messages-container';
+        messagesContainer.appendChild(messagesContent);
+    }
+    
     const providerButtons = document.querySelectorAll('.provider-btn');
     const newChatButton = document.getElementById('new-chat-btn');
     const clearChatButton = document.getElementById('clear-chat-btn');
     const clearHistoryButton = document.getElementById('clear-history-btn');
     const chatThreads = document.querySelector('.chat-history');
+    
+    // Theme switcher
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const htmlElement = document.documentElement;
+    const body = document.body;
     
     // State variables
     let currentProvider = 'vimrc'; // Default provider
@@ -83,38 +97,93 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector(`.provider-btn[data-provider="${currentProvider}"]`).classList.add('active');
         await updateProviderInfo();
         loadChatHistory();
+        
+        // Hiển thị thông báo chào mừng ban đầu nếu không có thread nào
+        initWelcomeMessage();
+        
+        // Ensure chat scrolls to bottom on initial load
+        scrollToBottom(200);
+        
+        // Thêm event listener cho window load để đảm bảo cuộn xuống sau khi trang đã tải hoàn toàn
+        window.addEventListener('load', () => {
+            scrollToBottom(300);
+        });
+        
+        // Thêm MutationObserver để theo dõi thay đổi trong container tin nhắn
+        if ("MutationObserver" in window) {
+            const observer = new MutationObserver((mutations) => {
+                let shouldScroll = false;
+                
+                mutations.forEach(mutation => {
+                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                        shouldScroll = true;
+                    }
+                });
+                
+                if (shouldScroll) {
+                    scrollToBottom(10);
+                    setTimeout(() => messagesContainer.scrollTop = messagesContainer.scrollHeight, 200);
+                }
+            });
+            
+            observer.observe(messagesContainer, { 
+                childList: true, 
+                subtree: true 
+            });
+        }
     }
     
     async function loadModels() {
         try {
-            const response = await fetch('/api/v1/chat/models');
+            console.log('Fetching models from /chat/models...');
+            const response = await fetch('/chat/models');
+            
             if (!response.ok) {
-                throw new Error('Failed to load models');
+                console.error(`API error: ${response.status} ${response.statusText}`);
+                throw new Error(`Failed to load models: ${response.status}`);
             }
 
             const data = await response.json();
+            console.log('Models loaded successfully:', data);
             
             // Transform the data into our expected format
             modelConfigs = {
                 vimrc: {
-                    models: data.vimrc.models.map(name => ({
-                        name: name,
-                        display_name: name
-                    })),
+                    models: data.vimrc.models.map(model => {
+                        // Nếu model là object với name và display_name
+                        if (typeof model === 'object' && model.name && model.display_name) {
+                            return model;
+                        }
+                        // Nếu model chỉ là string
+                        return {
+                            name: model,
+                            display_name: formatDisplayName(model, 'vimrc')
+                        };
+                    }),
                     default_model: data.vimrc.default
                 },
                 openai: {
-                    models: data.openai.models.map(name => ({
-                        name: name,
-                        display_name: name
-                    })),
+                    models: data.openai.models.map(model => {
+                        if (typeof model === 'object' && model.name && model.display_name) {
+                            return model;
+                        }
+                        return {
+                            name: model,
+                            display_name: formatDisplayName(model, 'openai')
+                        };
+                    }),
                     default_model: data.openai.default
                 },
                 gemini: {
-                    models: data.gemini.models.map(name => ({
-                        name: name,
-                        display_name: name
-                    })),
+                    models: data.gemini.models.map(model => {
+                        if (typeof model === 'object' && model.name && model.display_name) {
+                            return model;
+                        }
+                        return {
+                            name: model,
+                            display_name: formatDisplayName(model, 'gemini')
+                        };
+                    }),
                     default_model: data.gemini.default
                 }
             };
@@ -137,9 +206,22 @@ document.addEventListener('DOMContentLoaded', function() {
             modelConfigs = {
                 vimrc: {
                     models: [
-                        { name: 'vi-mrc-large', display_name: 'VI-MRC Large' }
+                        { name: 'vi-mrc-large', display_name: 'HTC FinBot' }
                     ],
                     default_model: 'vi-mrc-large'
+                },
+                openai: {
+                    models: [
+                        { name: 'gpt-3.5-turbo', display_name: 'GPT-3.5 Turbo' },
+                        { name: 'gpt-4', display_name: 'GPT-4' }
+                    ],
+                    default_model: 'gpt-3.5-turbo'
+                },
+                gemini: {
+                    models: [
+                        { name: 'gemini-pro', display_name: 'Gemini Pro' }
+                    ],
+                    default_model: 'gemini-pro'
                 }
             };
             updateModelOptions(currentProvider);
@@ -149,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function updateProviderInfo() {
         const botNameElement = document.querySelector('.chat-title');
         if (botNameElement) {
-            botNameElement.textContent = `${currentProvider.toUpperCase()} Assistant`;
+            botNameElement.textContent = getProviderDisplayName();
         }
         
         // Update model options for the new provider
@@ -189,6 +271,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function loadThread(threadId) {
+        if (!messagesContent) {
+            console.error('Cannot load thread: container not found');
+            return;
+        }
+        
         if (threads[threadId]) {
             messages = threads[threadId].messages;
             currentThreadId = threadId;
@@ -200,7 +287,14 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.thread-item').forEach(item => {
                 item.classList.remove('active');
             });
-            document.querySelector(`.thread-item[data-thread-id="${threadId}"]`).classList.add('active');
+            
+            const threadElement = document.querySelector(`.thread-item[data-thread-id="${threadId}"]`);
+            if (threadElement) {
+                threadElement.classList.add('active');
+            }
+            
+            // Cuộn xuống cuối
+            scrollToBottom(100);
         }
     }
     
@@ -266,23 +360,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function createNewThread() {
+        if (!messagesContent) {
+            console.error('Cannot create new thread: container not found');
+            return;
+        }
+        
         // Clear current messages
         messages = [];
         currentThreadId = generateThreadId();
         
         // Clear message container
-        messagesContainer.innerHTML = '';
+        messagesContent.innerHTML = '';
         
         // Create welcome message
         const welcomeDiv = document.createElement('div');
-        welcomeDiv.className = 'message assistant-message';
+        welcomeDiv.className = 'welcome-message';
         welcomeDiv.innerHTML = `
             <div class="message-content">
-                <h3>Welcome to AI Chat Hub</h3>
-                <p>How can I help you today?</p>
+                <h3>Chào mừng đến với HTC FinBot</h3>
+                <p>Hãy đặt câu hỏi để bắt đầu trò chuyện!</p>
             </div>
         `;
-        messagesContainer.appendChild(welcomeDiv);
+        messagesContent.appendChild(welcomeDiv);
         
         // Create new thread entry
         const title = 'New Chat';
@@ -296,17 +395,24 @@ document.addEventListener('DOMContentLoaded', function() {
         saveThreads();
         
         // Clear input
-        messageInput.value = '';
-        messageInput.style.height = 'auto';
-        sendButton.disabled = true;
+        if (messageInput) {
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            if (sendButton) sendButton.disabled = true;
+        }
     }
     
     function clearCurrentChat() {
         if (!confirm('Are you sure you want to clear the current chat?')) return;
+        
+        if (!messagesContent) {
+            console.error('Cannot clear chat: container not found');
+            return;
+        }
 
         // Clear only current thread messages
         messages = [];
-        messagesContainer.innerHTML = '';
+        messagesContent.innerHTML = '';
         
         // Update thread
         if (threads[currentThreadId]) {
@@ -322,12 +428,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 <p>Chat cleared. Start a new conversation!</p>
             </div>
         `;
-        messagesContainer.appendChild(emptyDiv);
+        messagesContent.appendChild(emptyDiv);
         
         // Clear input
-        messageInput.value = '';
-        messageInput.style.height = 'auto';
-        sendButton.disabled = true;
+        if (messageInput) {
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            if (sendButton) sendButton.disabled = true;
+        }
     }
 
     function clearAllHistory() {
@@ -339,7 +447,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Clear current messages
         messages = [];
-        messagesContainer.innerHTML = '';
+        messagesContent.innerHTML = '';
         
         // Clear chat history UI
         while (chatThreads.firstChild) {
@@ -392,7 +500,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const threadElement = document.querySelector(`.thread-item[data-thread-id="${currentThreadId}"]`);
             if (threadElement) {
-                threadElement.textContent = threadTitle;
+                threadElement.querySelector('.thread-content').textContent = threadTitle;
             }
             
             saveThreads();
@@ -401,9 +509,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show loading indicator
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'message assistant-message loading';
-        loadingDiv.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
-        messagesContainer.appendChild(loadingDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        loadingDiv.innerHTML = `
+            <div class="message-header">
+                <span class="message-sender">${getProviderDisplayName()}</span>
+                <span class="message-time">Đang trả lời...</span>
+            </div>
+            <div class="typing-indicator">
+                <span></span><span></span><span></span>
+            </div>`;
+        messagesContent.appendChild(loadingDiv);
+        scrollToBottom(10);
         
         try {
             const apiMessages = messages.map(msg => ({
@@ -412,7 +527,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 context: msg.context || null
             }));
             
-            const response = await fetch('/api/v1/chat/send', {
+            const response = await fetch('/chat/send', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -422,56 +537,54 @@ document.addEventListener('DOMContentLoaded', function() {
                     provider: currentProvider,
                     model: currentModel,
                     temperature: 0.7,
-                    max_tokens: 800
+                    max_tokens: 800,
+                    use_training_data: currentProvider === 'vimrc' // Chỉ sử dụng dữ liệu training khi provider là vimrc
                 })
             });
             
-            messagesContainer.removeChild(loadingDiv);
+            messagesContent.removeChild(loadingDiv);
             
             if (response.ok) {
                 const data = await response.json();
                 addMessage('assistant', data.content);
                 Prism.highlightAll();
+                // Scroll to bottom after AI response is displayed
+                scrollToBottom(100);
             } else {
                 const errorData = await response.json();
                 addMessage('assistant', `Error: ${errorData.detail || 'Failed to get response'}`);
+                scrollToBottom(50);
             }
         } catch (error) {
-            if (messagesContainer.contains(loadingDiv)) {
-                messagesContainer.removeChild(loadingDiv);
+            if (messagesContent.contains(loadingDiv)) {
+                messagesContent.removeChild(loadingDiv);
             }
             console.error('Error sending message:', error);
             addMessage('assistant', `Error: ${error.message || 'Something went wrong'}`);
+            scrollToBottom(50);
         }
     }
     
-    function addMessage(role, content, context = null) {
-        // Add to messages array
-        messages.push({ role, content, context });
-        
-        // Save to localStorage
-        saveThreads();
-        
-        // Update UI
-        renderMessage({ role, content });
-        
-        // Scroll to bottom
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-    
     function renderMessages() {
+        // Kiểm tra messagesContent tồn tại
+        if (!messagesContent) {
+            console.error('Messages content container not found!');
+            return;
+        }
+        
         // Clear messages container
-        messagesContainer.innerHTML = '';
+        messagesContent.innerHTML = '';
         
         // If no messages, show welcome message
         if (messages.length === 0) {
             const welcomeDiv = document.createElement('div');
             welcomeDiv.className = 'welcome-message';
             welcomeDiv.innerHTML = `
-                <h3>Welcome to VI-MRC Assistant</h3>
-                <p>Ask me anything about Vietnamese language, context-based questions, or general knowledge.</p>
+                <h3>Chào mừng đến với HTC FinBot</h3>
+                <p>Hãy chọn nhà cung cấp AI và đặt câu hỏi để bắt đầu trò chuyện!</p>
             `;
-            messagesContainer.appendChild(welcomeDiv);
+            messagesContent.appendChild(welcomeDiv);
+            scrollToBottom(50);
             return;
         }
         
@@ -482,13 +595,22 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Apply syntax highlighting
         Prism.highlightAll();
+        
+        // Cuộn xuống dưới
+        scrollToBottom(100);
     }
     
     function renderMessage(message) {
+        if (!messagesContent) {
+            console.error('Cannot render message: container not found');
+            return;
+        }
+        
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${message.role}-message`;
         
-        let displayName = message.role === 'user' ? 'You' : 'Assistant';
+        let displayName = message.role === 'user' ? 'You' : getProviderDisplayName();
+        let timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         
         // Format message content - detect and format code blocks
         let formattedContent = formatMessageContent(message.content);
@@ -496,19 +618,22 @@ document.addEventListener('DOMContentLoaded', function() {
         messageDiv.innerHTML = `
             <div class="message-header">
                 <span class="message-sender">${displayName}</span>
-                <span class="message-time">${new Date().toLocaleTimeString()}</span>
+                <span class="message-time">${timestamp}</span>
             </div>
             <div class="message-content">${formattedContent}</div>
         `;
         
-        messagesContainer.appendChild(messageDiv);
+        messagesContent.appendChild(messageDiv);
+        
+        // Apply syntax highlighting
+        Prism.highlightAllUnder(messageDiv);
     }
     
     function formatMessageContent(content) {
         // Replace code blocks with properly formatted HTML
         let formattedContent = content;
         
-        // Match Markdown style code blocks
+        // Match Markdown style code blocks with language
         formattedContent = formattedContent.replace(/```([\w-]+)?\n([\s\S]*?)\n```/g, (match, language, code) => {
             const lang = language || 'plaintext';
             return `<pre><code class="language-${lang}">${escapeHtml(code)}</code></pre>`;
@@ -516,6 +641,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Match inline code
         formattedContent = formattedContent.replace(/`([^`]+)`/g, '<code>$1</code>');
+        
+        // Format links
+        formattedContent = formattedContent.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
         
         // Convert line breaks to <br>
         formattedContent = formattedContent.replace(/\n/g, '<br>');
@@ -532,42 +660,267 @@ document.addEventListener('DOMContentLoaded', function() {
             .replace(/'/g, "&#039;");
     }
 
-    // Function to update model options based on selected provider
-    function updateModelOptions(provider) {
-        const modelSelect = document.getElementById('model-select');
-        if (!modelSelect) return;
+    // Format display name for model selection
+    function formatDisplayName(name, provider) {
+        // Special case for HTC FinBot models
+        if (provider === 'vimrc') {
+            return 'HTC FinBot';
+        }
         
-        modelSelect.innerHTML = ''; // Clear existing options
-        
-        const config = modelConfigs[provider];
-        if (!config || !Array.isArray(config.models)) {
-            console.error('Invalid configuration for provider:', provider);
+        // Regular formatting for other models
+        return name
+            .split(/[-_]/)
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+
+    // Helper function to scroll to bottom of messages container with a more aggressive approach
+    function scrollToBottom(delay = 0) {
+        setTimeout(() => {
+            if (!messagesContainer || !messagesContent) {
+                console.error('Cannot scroll: container not found');
+                return;
+            }
+            
+            // Direct DOM access for scrolling
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Also use scrollIntoView on last child
+            const lastMessage = messagesContent.lastElementChild;
+            if (lastMessage) {
+                try {
+                    lastMessage.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                } catch (e) {
+                    console.log('ScrollIntoView failed, using fallback');
+                }
+            }
+        }, delay);
+    }
+
+    // Initialize the welcome message
+    function initWelcomeMessage() {
+        if (!messagesContent) {
+            console.error('Cannot show welcome message: container not found');
             return;
         }
         
-        config.models.forEach(model => {
-            const option = document.createElement('option');
-            option.value = model.name;
-            // Format display name to be more readable
-            option.textContent = model.display_name
-                .split(/[-_]/)
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' ');
-            modelSelect.appendChild(option);
-        });
-        
-        // Set default value
-        if (modelSelect.options.length > 0) {
-            const defaultModel = config.default_model || config.models[0].name;
-            modelSelect.value = defaultModel;
-            currentModel = defaultModel;
+        if (messagesContent.childElementCount === 0) {
+            const welcomeDiv = document.createElement('div');
+            welcomeDiv.className = 'welcome-message';
+            welcomeDiv.innerHTML = `
+                <h3>Chào mừng đến với HTC FinBot</h3>
+                <p>Hãy chọn nhà cung cấp AI và đặt câu hỏi để bắt đầu trò chuyện!</p>
+            `;
+            messagesContent.appendChild(welcomeDiv);
+            scrollToBottom(50);
+        }
+    }
+    
+    // Get provider display name based on current selection
+    function getProviderDisplayName() {
+        switch(currentProvider) {
+            case 'vimrc':
+                return 'HTC FinBot Assistant';
+            case 'openai':
+                return 'OpenAI Assistant';
+            case 'gemini':
+                return 'Gemini Assistant';
+            default:
+                return 'AI Assistant';
         }
     }
 
-    // Add event listener for model selection change
-    document.getElementById('model-select').addEventListener('change', function() {
-        if (this.value) {
-            currentModel = this.value;
+    // Add global auto-scroll to bottom of messages container
+    setInterval(() => {
+        // Only auto-scroll if near bottom already (user isn't scrolling up to read)
+        if (messagesContainer) {
+            const isNearBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < 150;
+            if (isNearBottom) {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
         }
-    });
+    }, 1000);
+
+    function addMessage(role, content, context = null) {
+        if (!messagesContent) {
+            console.error('Cannot add message: container not found');
+            return;
+        }
+        
+        // Add to messages array
+        messages.push({ role, content, context });
+        
+        // Save to localStorage
+        saveThreads();
+        
+        // Update UI
+        renderMessage({ role, content });
+        
+        // Cuộn xuống cuối
+        scrollToBottom(100);
+    }
+
+    // Function to update model options based on selected provider
+    async function updateModelOptions(provider) {
+        // Update the model selection dropdown based on provider
+        const modelSelect = document.getElementById('model-select');
+        if (!modelSelect) {
+            console.error('Model select element not found');
+            return;
+        }
+        
+        // Clear existing options
+        modelSelect.innerHTML = '';
+        
+        // Get provider config
+        const config = modelConfigs[provider];
+        if (!config || !Array.isArray(config.models)) {
+            console.error('Invalid model configuration for provider', provider);
+            return;
+        }
+        
+        // Create and add new options
+        config.models.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model.name;
+            option.textContent = model.display_name;
+            option.setAttribute('data-provider', provider); // Store provider info in the option
+            modelSelect.appendChild(option);
+        });
+        
+        // Get providers for other models too
+        if (provider === 'vimrc') {
+            // Add OpenAI models
+            if (modelConfigs.openai && modelConfigs.openai.models) {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = 'OpenAI Models';
+                
+                modelConfigs.openai.models.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model.name;
+                    option.textContent = model.display_name;
+                    option.setAttribute('data-provider', 'openai'); // Store provider info
+                    optgroup.appendChild(option);
+                });
+                
+                modelSelect.appendChild(optgroup);
+            }
+            
+            // Add Gemini models
+            if (modelConfigs.gemini && modelConfigs.gemini.models) {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = 'Gemini Models';
+                
+                modelConfigs.gemini.models.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model.name;
+                    option.textContent = model.display_name;
+                    option.setAttribute('data-provider', 'gemini'); // Store provider info
+                    optgroup.appendChild(option);
+                });
+                
+                modelSelect.appendChild(optgroup);
+            }
+        }
+        
+        // Set default model
+        if (config.default_model) {
+            modelSelect.value = config.default_model;
+            currentModel = config.default_model;
+        } else if (modelSelect.options.length > 0) {
+            currentModel = modelSelect.options[0].value;
+        }
+        
+        // Add change event listener to update the current model and provider
+        modelSelect.addEventListener('change', function() {
+            currentModel = this.value;
+            
+            // Check if we need to change provider based on selected model
+            const selectedOption = this.options[this.selectedIndex];
+            const modelProvider = selectedOption.getAttribute('data-provider');
+            
+            if (modelProvider && modelProvider !== currentProvider) {
+                // Update provider if different
+                currentProvider = modelProvider;
+                
+                // Update UI to reflect provider change
+                providerButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.getAttribute('data-provider') === currentProvider) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                // Update bot name display
+                const botNameElement = document.querySelector('.chat-title');
+                if (botNameElement) {
+                    botNameElement.textContent = getProviderDisplayName();
+                }
+            }
+        });
+    }
+
+    // Initialize theme
+    initTheme();
+    
+    // Function to initialize theme based on user preference or saved setting
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // Apply dark theme if saved or preferred
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            enableDarkMode();
+        } else {
+            disableDarkMode();
+        }
+    }
+    
+    // Enable dark mode
+    function enableDarkMode() {
+        body.classList.add('dark-theme');
+        if (darkModeToggle) {
+            darkModeToggle.innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
+        }
+        localStorage.setItem('theme', 'dark');
+    }
+    
+    // Disable dark mode
+    function disableDarkMode() {
+        body.classList.remove('dark-theme');
+        if (darkModeToggle) {
+            darkModeToggle.innerHTML = '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+        }
+        localStorage.setItem('theme', 'light');
+    }
+    
+    // Toggle dark mode
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', function() {
+            if (body.classList.contains('dark-theme')) {
+                disableDarkMode();
+            } else {
+                enableDarkMode();
+            }
+        });
+    }
+    
+    // Toggle sidebar on mobile
+    const toggleSidebarBtn = document.getElementById('toggle-sidebar');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (toggleSidebarBtn && sidebar) {
+        toggleSidebarBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('show');
+        });
+        
+        // Close sidebar when clicking outside
+        document.addEventListener('click', function(event) {
+            if (sidebar.classList.contains('show') && 
+                !sidebar.contains(event.target) && 
+                event.target !== toggleSidebarBtn) {
+                sidebar.classList.remove('show');
+            }
+        });
+    }
 }); 

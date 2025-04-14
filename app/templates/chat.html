@@ -8,16 +8,33 @@
     <!-- CSS -->
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-okaidia.min.css">
     <link rel="stylesheet" href="/static/css/enhanced-chat.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet">
     
-    <!-- Set primary color CSS variable -->
+    <!-- Set theme color CSS variables -->
     <style>
-        :root {
-            --primary-color: #0f67ff;
-            --primary-color-rgb: 15, 103, 255;
-            --success-color: #10a37f;
+        html {
+            --primary-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
+            --secondary-gradient: linear-gradient(135deg, #3b82f6, #2dd4bf);
+            --success-gradient: linear-gradient(135deg, #10b981, #059669);
+            --gemini-gradient: linear-gradient(135deg, #8e44ad, #3498db);
+            --openai-gradient: linear-gradient(135deg, #10a37f, #0ea5e9);
+            --vimrc-gradient: linear-gradient(135deg, #2563eb, #10b981);
+        }
+
+        body.dark-theme {
+            --bg-color: #111827;
+            --sidebar-bg: #1f2937;
+            --light-bg: #273141;
+            --text-color: #e5e7eb;
+            --light-text: #9ca3af;
+            --border-color: #374151;
+            --message-user-bg: #3b4252;
+            --message-assistant-bg: #2e3440;
+            --chat-container-bg: #1a202c;
+            --input-bg: #2d3748;
+            --code-bg: #2d3748;
         }
     </style>
 </head>
@@ -26,9 +43,13 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <div class="sidebar-title">
-                    <i class="fas fa-robot"></i>
-                    <span>AI Chat Hub</span>
+                <div class="sidebar-logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="sidebar-title">
+                        <span>AI Chat Hub</span>
+                    </div>
                 </div>
             </div>
             
@@ -55,7 +76,7 @@
                     <div class="ai-selector-title">Choose AI Provider</div>
                     <div class="provider-buttons">
                         <button class="provider-btn active" data-provider="vimrc">
-                            <i class="fas fa-robot"></i> VI-MRC
+                            <i class="fas fa-robot"></i> HTCFinBot
                         </button>
                         <button class="provider-btn" data-provider="openai">
                             <i class="fas fa-comment-dots"></i> OpenAI
@@ -70,6 +91,14 @@
                         <!-- Models will be populated dynamically -->
                     </select>
                 </div>
+                
+                <!-- Theme toggle at bottom of sidebar -->
+                <div class="theme-toggle-container">
+                    <button class="theme-toggle" id="dark-mode-toggle" title="Toggle dark mode">
+                        <i class="fas fa-moon"></i>
+                        <span>Dark Mode</span>
+                    </button>
+                </div>
             </div>
         </aside>
         
@@ -79,20 +108,17 @@
                 <button class="toggle-sidebar" id="toggle-sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
-                <div class="chat-title">VI-MRC Assistant</div>
+                <div class="chat-title">HTC FinBot Assistant</div>
                 <div class="actions-menu">
                     <button class="action-btn" id="clear-chat-btn" title="Clear current chat">
                         <i class="fas fa-trash-alt"></i>
-                    </button>
-                    <button class="action-btn" id="dark-mode-toggle" title="Toggle dark mode">
-                        <i class="fas fa-moon"></i>
                     </button>
                 </div>
             </header>
             
             <div class="chat-container">
                 <div class="messages-wrap" id="messages-wrap">
-                    <!-- Messages will be loaded here -->
+                    <!-- Welcome message will be added dynamically -->
                 </div>
             </div>
             

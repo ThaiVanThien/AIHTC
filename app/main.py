@@ -3,7 +3,7 @@ from fastapi.exception_handlers import http_exception_handler
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 import logging
 import os
@@ -37,48 +37,17 @@ APP_PID = os.getpid()
 RATE_LIMIT_DURATION = 60  # seconds
 RATE_LIMIT_REQUESTS = 100  # requests per duration
 
-# Middleware đo hiệu suất
-class PerformanceMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        request_id = str(uuid.uuid4())
-        start_time = time.time()
-        
-        # Thêm request_id vào header request để theo dõi
-        request.state.request_id = request_id
-        
-        # Log thông tin request
-        logger.info(f"Request {request_id} started: {request.method} {request.url.path}")
-        
-        try:
-            response = await call_next(request)
-            
-            # Đo thời gian xử lý
-            process_time = time.time() - start_time
-            response.headers["X-Process-Time"] = str(process_time)
-            response.headers["X-Request-ID"] = request_id
-            
-            # Log kết quả
-            logger.info(f"Request {request_id} completed: {response.status_code} in {process_time:.4f}s")
-            
-            return response
-        except Exception as e:
-            # Log lỗi
-            process_time = time.time() - start_time
-            logger.error(f"Request {request_id} failed: {str(e)} in {process_time:.4f}s")
-            raise
-
 # Xử lý exception toàn cục
 async def global_exception_handler(request: Request, exc: Exception):
-    error_id = str(uuid.uuid4())
-    logger.error(f"Unhandled error {error_id}: {str(exc)}", exc_info=True)
-    
     if isinstance(exc, HTTPException):
         return await http_exception_handler(request, exc)
+    
+    # Ghi log lỗi nhưng không hiển thị chi tiết cho client
+    logger.error(f"Unhandled error: {str(exc)}", exc_info=True)
     
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
-            "error_id": error_id,
             "message": "Đã xảy ra lỗi nội bộ. Vui lòng thử lại sau.",
             "timestamp": datetime.now().isoformat()
         }
@@ -143,7 +112,6 @@ app = FastAPI(
 app.add_exception_handler(Exception, global_exception_handler)
 
 # Thêm middleware
-app.add_middleware(PerformanceMiddleware)
 app.add_middleware(RateLimitMiddleware)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 
@@ -156,16 +124,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Tạo router API gốc
-api_router = APIRouter(prefix="/api/v1")
-# Đăng ký router con
-api_router.include_router(nlp.router, tags=["nlp"])
-api_router.include_router(vimrc.router, tags=["vi-mrc"])
-api_router.include_router(cloud_ai.router, tags=["cloud-ai"])
-api_router.include_router(chat.router, tags=["chat"])
+# Đăng ký các router trực tiếp mà không dùng tiền tố /api/v1
+# Đầu tiên import tất cả để tránh lỗi import cycle
+from app.routers import nlp, vimrc, cloud_ai, chat
 
-# Đăng ký router API gốc vào ứng dụng
-app.include_router(api_router)
+# Đăng ký các router theo thứ tự
+app.include_router(chat.router, prefix="/chat", tags=["chat"])
+app.include_router(vimrc.router, prefix="/vimrc", tags=["vi-mrc"])
+app.include_router(cloud_ai.router, prefix="/cloud", tags=["cloud-ai"])
+app.include_router(nlp.router, tags=["nlp"])
 
 # Thêm cấu hình để phục vụ các static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
@@ -177,71 +144,18 @@ def is_port_in_use(port: int) -> bool:
         return s.connect_ex(('127.0.0.1', port)) == 0
 
 
-def free_port(port: int) -> None:
-    """Giải phóng cổng đang bị chiếm"""
-    try:
-        if sys.platform == 'win32':
-            # Tìm PID của tiến trình đang giữ cổng (Windows)
-            result = subprocess.run(
-                f'netstat -ano | findstr :{port}', 
-                shell=True, 
-                capture_output=True, 
-                text=True
-            )
-            if result.stdout:
-                # Tìm PID từ output của netstat
-                for line in result.stdout.strip().split('\n'):
-                    if 'LISTENING' in line or 'ESTABLISHED' in line:
-                        parts = line.strip().split()
-                        if len(parts) >= 5:
-                            pid = parts[-1]
-                            if pid and pid.isdigit() and int(pid) != APP_PID:
-                                # Kết thúc tiến trình với PID này (nếu không phải tiến trình hiện tại)
-                                subprocess.run(f'taskkill /PID {pid} /F', shell=True)
-                                logger.info(f"Đã giải phóng cổng {port} từ PID {pid}")
-                
-                # Nếu cổng vẫn bị chiếm khi đang ở trạng thái TIME_WAIT, cần chờ một chút
-                if 'TIME_WAIT' in result.stdout:
-                    logger.info(f"Cổng {port} đang ở trạng thái TIME_WAIT, đợi hệ thống giải phóng...")
-                    # Đợi tối đa 5 giây để TIME_WAIT hết hạn
-                    for _ in range(5):
-                        time.sleep(1)
-                        # Kiểm tra lại xem cổng đã được giải phóng chưa
-                        if not is_port_in_use(port):
-                            logger.info(f"Cổng {port} đã được giải phóng")
-                            break
-        else:
-            # Linux/MacOS
-            result = subprocess.run(
-                f"lsof -i :{port} -t", 
-                shell=True, 
-                capture_output=True, 
-                text=True
-            )
-            if result.stdout:
-                for pid in result.stdout.strip().split('\n'):
-                    if pid and pid.isdigit() and int(pid) != APP_PID:
-                        # Gửi tín hiệu SIGTERM đến tiến trình
-                        try:
-                            os.kill(int(pid), signal.SIGTERM)
-                            logger.info(f"Đã giải phóng cổng {port} từ PID {pid}")
-                        except ProcessLookupError:
-                            pass
-    except Exception as e:
-        logger.error(f"Lỗi khi giải phóng cổng {port}: {str(e)}")
-
-
-# Endpoint lấy thông tin hệ thống
-@app.get("/system/info", tags=["admin"], summary="Thông tin hệ thống", 
+# Endpoint thông tin hệ thống và kiểm tra sức khỏe
+@app.get("/system", tags=["admin"], summary="Thông tin và trạng thái hệ thống", 
         description="Trả về thông tin về hệ thống và trạng thái của server.")
-def system_info():
+def system_status():
     """
-    Lấy thông tin về hệ thống.
+    Lấy thông tin về hệ thống và trạng thái hoạt động.
     
     Returns:
-        dict: Thông tin về hệ thống bao gồm phiên bản, thời gian hoạt động, v.v.
+        dict: Thông tin về hệ thống và trạng thái hoạt động.
     """
     return {
+        "status": "healthy",
         "version": "1.1.0",
         "server_time": datetime.now().isoformat(),
         "platform": sys.platform,
@@ -251,46 +165,14 @@ def system_info():
     }
 
 
-# Endpoint health check
-@app.get("/health", tags=["admin"], summary="Kiểm tra sức khỏe", 
-        description="Kiểm tra xem API có hoạt động bình thường không.")
-def health_check():
+@app.get("/", tags=["root"], summary="Trang chủ", response_class=HTMLResponse, 
+        description="Chuyển hướng đến giao diện chat.")
+async def root(request: Request):
     """
-    Kiểm tra sức khỏe của API.
-    
-    Returns:
-        dict: Thông tin về trạng thái của API.
+    Trang chủ chuyển hướng đến giao diện chat.
     """
-    return {
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat()
-    }
-
-
-@app.get("/", tags=["root"], summary="Trang chủ API", 
-        description="Hiển thị thông tin chào mừng và hướng dẫn sử dụng API.")
-def root(request: Request):
-    """
-    Trang chủ của API.
-    
-    Returns:
-        dict: Thông tin chào mừng và liên kết đến tài liệu.
-    """
-    return {
-        "message": "Chào mừng đến với AI Hệ thống Chat Demo",
-        "status": "active",
-        "version": "1.1.0",
-        "request_id": getattr(request.state, "request_id", "unknown"),
-        "documentation": {
-            "swagger": "/docs",
-            "redoc": "/redoc"
-        },
-        "endpoints": {
-            "items": "/api/v1/items",
-            "health": "/health",
-            "system_info": "/system/info"
-        }
-    }
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/chat")
 
 
 @app.on_event("startup")
@@ -307,10 +189,9 @@ async def startup_event():
     # Log thông tin khởi động
     logger.info(f"Starting up application version: {settings.APP_VERSION}")
     
-    # Kiểm tra và giải phóng cổng nếu nó đang bị chiếm
-    if is_port_in_use(APP_PORT):
-        logger.warning(f"Cổng {APP_PORT} đang bị chiếm, đang thử giải phóng...")
-        free_port(APP_PORT)
+    # Ghi nhận cổng đang được sử dụng
+    if is_port_in_use(APP_PORT) and APP_PORT != 0:
+        logger.warning(f"Cổng {APP_PORT} đang được sử dụng bởi một tiến trình khác")
     
     logger.info("Ứng dụng đã khởi động thành công")
 
@@ -321,9 +202,4 @@ async def shutdown_event():
     Sự kiện khi ứng dụng tắt
     """
     logger.info("Ứng dụng đang tắt...")
-    
-    # Thử giải phóng cổng
-    logger.info(f"Đang giải phóng cổng {APP_PORT}...")
-    free_port(APP_PORT)
-    
     logger.info("Tất cả kết nối đã được đóng")
