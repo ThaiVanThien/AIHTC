@@ -1,0 +1,296 @@
+### Quy Trình Xử Lý Với Gemini
+
+1. **Chuẩn Bị Truy Vấn**:
+   - Làm sạch truy vấn người dùng
+   - Thêm truy vấn vào cấu trúc prompt
+
+2. **Gửi Prompt Đến Gemini API**:
+   ```python
+   response = gemini.generate_content(prompt)
+   result = json.loads(response.text)
+   ```
+
+3. **Xử Lý Kết Quả**:
+   - Kiểm tra loại ý định từ `result["intent_type"]`
+   - Trích xuất tham số từ `result["parameters"]`
+   - Sử dụng mức độ tin cậy từ `result["confidence"]` để xác định cần làm rõ hay không
+
+4. **Định Tuyến Truy Vấn**:
+   - Nếu `intent_type` là "INFORMATION_RETRIEVAL" → Chuyển đến hệ thống tìm kiếm
+   - Nếu `intent_type` là "QUESTION_ANSWERING" → Chuyển đến hệ thống hỏi đáp
+   - Nếu `confidence` < 0.7 → Yêu cầu làm rõ từ người dùng
+
+### Mở Rộng Khả Năng Của Gemini
+
+Để tăng độ chính xác, có thể cung cấp cho Gemini các ví dụ few-shot trong prompt:
+
+```
+SYSTEM:
+// ... existing prompt ...
+
+Dưới đây là một số ví dụ để hướng dẫn phân loại của bạn:
+
+Ví dụ 1:
+Truy vấn: "Tìm sản phẩm điện thoại có camera trên 48MP"
+Kết quả:
+{
+  "intent_type": "INFORMATION_RETRIEVAL",
+  "confidence": 0.98,
+  "parameters": {
+    "search_terms": ["điện thoại"],
+    "filters": ["camera > 48MP"],
+    "sort_criteria": null,
+    ...
+  }
+}
+
+Ví dụ 2:
+Truy vấn: "Giải thích cách sạc pin điện thoại đúng cách để kéo dài tuổi thọ pin"
+Kết quả:
+{
+  "intent_type": "QUESTION_ANSWERING",
+  "confidence": 0.93,
+  "parameters": {
+    ...
+    "question_focus": "cách sạc pin đúng",
+    "context_markers": ["điện thoại", "pin"],
+    "reasoning_entities": ["tuổi thọ pin", "kỹ thuật sạc"]
+  }
+}
+
+USER:
+<truy vấn của người dùng>
+```
+
+### Xử Lý Trường Hợp Đặc Biệt
+
+1. **Truy Vấn Hỗn Hợp**: 
+   ```
+   "Tìm điện thoại Samsung và giải thích tại sao Galaxy S23 tốt hơn iPhone 15"
+   ```
+   
+   Xử lý: Phân tách thành 2 truy vấn riêng biệt và xử lý từng cái
+
+2. **Truy Vấn Đa Bước**:
+   ```
+   "Tìm laptop giá dưới 20 triệu và sau đó sắp xếp theo đánh giá"
+   ```
+   
+   Xử lý: Thêm trường `multi_step_query: true` và list các bước trong `execution_steps`
+
+3. **Truy Vấn Không Rõ Ràng**:
+   ```
+   "Samsung so với iPhone"
+   ```
+   
+   Xử lý: Gán `intent_type: "AMBIGUOUS"` và cung cấp các lựa chọn tiềm năng
+
+### Đánh Giá Và Cải Thiện
+
+1. **Thu Thập Dữ Liệu**: Ghi lại các truy vấn và kết quả phân loại
+2. **Đánh Giá Thủ Công**: Kiểm tra định kỳ 100-200 mẫu để đánh giá độ chính xác
+3. **Cập Nhật Prompt**: Tinh chỉnh cấu trúc prompt dựa trên phân tích lỗi
+4. **Thêm Few-Shot**: Bổ sung các ví dụ mới khi phát hiện trường hợp phân loại sai
+
+
+
+## Prompt Cụ Thể Để Gemini Phát Hiện Ý Định Truy Vấn
+
+```
+SYSTEM:
+Bạn là hệ thống phân tích truy vấn tiếng Việt. Nhiệm vụ của bạn là xác định loại câu, thời gian và hàm cần truy vấn.
+
+Phân loại truy vấn thành một trong hai loại sau:
+1. INFORMATION_RETRIEVAL (Truy Xuất Thông Tin): Người dùng muốn tìm kiếm dữ liệu cụ thể.
+2. QUESTION_ANSWERING (Hỏi Đáp): Người dùng đang đặt câu hỏi cần giải thích hoặc phân tích.
+
+Dựa trên phân tích của bạn, hãy trả về kết quả dưới dạng JSON với định dạng sau:
+{
+  "query_type": "INFORMATION_RETRIEVAL hoặc QUESTION_ANSWERING",
+  "confidence_score": số từ 0.0 đến 1.0,
+  "time_info": {
+    "from_date": "dd/MM/yyyy", // Ngày bắt đầu nếu có
+    "to_date": "dd/MM/yyyy",   // Ngày kết thúc nếu có
+    "time_type": "specific/range/none", // Loại thời gian được chỉ định
+    "quarter": "Q1/Q2/Q3/Q4", // Quý nếu có
+    "year": "YYYY" // Năm của quý
+  },
+  "function_info": {
+    "name": "tên hàm cần gọi",
+    "parameters": {
+      // Các tham số cần thiết cho hàm
+      "param1": "giá trị1",
+      "param2": "giá trị2"
+    }
+  },
+  "parameters": {
+    // Các tham số phụ thuộc loại truy vấn
+    "keywords": ["từ khóa1", "từ khóa2"],
+    "filters": ["điều kiện1", "điều kiện2"],
+    "entities": ["thực thể1", "thực thể2"]
+  }
+}
+
+Hãy phân tích dựa trên các đặc điểm:
+- Cấu trúc ngữ pháp của câu
+- Từ nghi vấn hoặc từ chỉ lệnh
+- Các thực thể được đề cập
+- Yêu cầu ẩn hoặc rõ ràng của người dùng
+
+USER:
+{truy_vấn}
+```
+
+### Ví Dụ Áp Dụng Prompt
+
+**Ví dụ 1: Truy vấn tìm kiếm**
+
+```
+USER:
+Tìm kiếm những laptop dưới 15 triệu có card đồ họa NVIDIA
+```
+
+Kết quả từ Gemini:
+```json
+{
+  "intent": "INFORMATION_RETRIEVAL",
+  "confidence_score": 0.96,
+  "parameters": {
+    "search_keywords": ["laptop", "card đồ họa", "NVIDIA"],
+    "filters": ["giá < 15000000"],
+    "question_type": null,
+    "entities": ["laptop", "NVIDIA"],
+    "context": null
+  }
+}
+```
+
+**Ví dụ 2: Truy vấn hỏi đáp**
+
+```
+USER:
+Tại sao MacBook Pro lại có hiệu suất pin tốt hơn so với các laptop Windows?
+```
+
+Kết quả từ Gemini:
+```json
+{
+  "intent": "QUESTION_ANSWERING",
+  "confidence_score": 0.92,
+  "parameters": { 
+    "search_keywords": null,
+    "filters": null,
+    "question_type": "why",
+    "entities": ["MacBook Pro", "laptop Windows", "hiệu suất pin"],
+    "context": "so sánh hiệu suất giữa hai loại thiết bị"
+  }
+}
+```
+
+### Các Tham Số Cần Xác Định
+
+**Cho INFORMATION_RETRIEVAL:**
+- **search_keywords**: Các từ khóa chính để tìm kiếm
+- **filters**: Các điều kiện lọc (giá, thương hiệu, thời gian, v.v.)
+- **sort_by**: Tiêu chí sắp xếp (nếu có)
+- **limit**: Giới hạn kết quả (nếu có)
+
+**Cho QUESTION_ANSWERING:**
+- **question_type**: Loại câu hỏi (what, why, how, when...)
+- **entities**: Các thực thể được đề cập
+- **context**: Ngữ cảnh của câu hỏi
+- **complexity**: Mức độ phức tạp (factual, analytical, opinion)
+
+### Mã Triển Khai Cơ Bản
+
+```python
+import google.generativeai as genai
+import json
+
+# Cấu hình API
+genai.configure(api_key='YOUR_API_KEY')
+
+# Khởi tạo model
+model = genai.GenerativeModel('gemini-pro')
+
+def detect_intent(query):
+    # Tạo prompt
+    prompt = f"""
+    SYSTEM:
+    Bạn là hệ thống phân tích truy vấn tiếng Việt. Nhiệm vụ của bạn là xác định ý định chính của truy vấn và trích xuất các tham số quan trọng.
+    
+    Phân loại truy vấn thành một trong hai loại sau:
+    1. INFORMATION_RETRIEVAL (Truy Xuất Thông Tin): Người dùng muốn tìm kiếm dữ liệu cụ thể.
+    2. QUESTION_ANSWERING (Hỏi Đáp): Người dùng đang đặt câu hỏi cần giải thích hoặc phân tích.
+    
+    Dựa trên phân tích của bạn, hãy trả về kết quả dưới dạng JSON với định dạng sau:
+    {{
+      "intent": "INFORMATION_RETRIEVAL hoặc QUESTION_ANSWERING",
+      "confidence_score": số từ 0.0 đến 1.0,
+      "parameters": {{
+        // Cho truy vấn INFORMATION_RETRIEVAL
+        "search_keywords": ["từ khóa1", "từ khóa2"],
+        "filters": ["điều kiện lọc1", "điều kiện lọc2"],
+        
+        // Cho truy vấn QUESTION_ANSWERING
+        "question_type": "loại câu hỏi (what/why/how...)",
+        "entities": ["thực thể1", "thực thể2"],
+        "context": "ngữ cảnh nếu có"
+      }}
+    }}
+    
+    USER:
+    {query}
+    """
+    
+    # Gọi API
+    response = model.generate_content(prompt)
+    
+    # Xử lý kết quả
+    try:
+        result = json.loads(response.text)
+        return result
+    except:
+        return {"error": "Không thể xử lý phản hồi từ Gemini"}
+
+# Ví dụ sử dụng
+query = "Tìm các điện thoại Samsung dưới 10 triệu có camera tốt"
+result = detect_intent(query)
+print(result)
+```
+
+### Quy Trình Xử Lý Sau Khi Nhận Kết Quả
+
+1. **Xác thực kết quả**:
+   ```python
+   if result.get("intent") and result.get("confidence_score", 0) > 0.7:
+       # Tiếp tục xử lý
+   else:
+       # Yêu cầu làm rõ từ người dùng
+   ```
+
+2. **Định tuyến dựa trên ý định**:
+   ```python
+   if result["intent"] == "INFORMATION_RETRIEVAL":
+       # Chuyển đến hệ thống tìm kiếm
+       search_engine.query(
+           keywords=result["parameters"]["search_keywords"],
+           filters=result["parameters"]["filters"]
+       )
+   elif result["intent"] == "QUESTION_ANSWERING":
+       # Chuyển đến hệ thống hỏi đáp
+       qa_engine.answer(
+           question_type=result["parameters"]["question_type"],
+           entities=result["parameters"]["entities"],
+           context=result["parameters"]["context"]
+       )
+   ```
+
+3. **Xử lý phản hồi**:
+   ```python
+   # Định dạng kết quả dựa trên loại ý định
+   if result["intent"] == "INFORMATION_RETRIEVAL":
+       response = format_search_results(search_results)
+   else:
+       response = format_qa_answer(qa_answer)
+   ```

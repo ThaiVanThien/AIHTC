@@ -1,3 +1,122 @@
+# API Chatbot E-commerce
+
+API xử lý tin nhắn chat cho hệ thống e-commerce sử dụng AI của OpenAI và Gemini.
+
+## Cài đặt
+
+```bash
+pip install -r requirements.txt
+```
+
+## Cấu hình
+
+Tạo file `.env` với các API key:
+
+```
+OPENAI_API_KEY=your_openai_api_key
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+## Chạy ứng dụng
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+## API Endpoints
+
+- `POST /chat`: Xử lý tin nhắn chat
+- `GET /health`: Kiểm tra trạng thái hoạt động
+
+## Ví dụ sử dụng
+
+```python
+import requests
+
+response = requests.post(
+    "http://localhost:8000/chat",
+    json={
+        "messages": [
+            {"role": "user", "content": "Tôi muốn tìm sản phẩm laptop"}
+        ],
+        "model": "gemini"  # hoặc "openai"
+    }
+)
+
+print(response.json())
+```
+
+# Dịch vụ Chat AI
+
+Dịch vụ API đơn giản để tương tác với các mô hình AI như Gemini và OpenAI.
+
+## Cài đặt
+
+1. Cài đặt các thư viện cần thiết:
+
+```bash
+pip install fastapi uvicorn google-generativeai openai python-dotenv requests
+```
+
+2. Tạo file `.env` với các khóa API của bạn:
+
+```
+OPENAI_API_KEY=your_openai_api_key
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+## Chạy dịch vụ
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+## API Endpoints
+
+### POST /chat
+
+Gửi tin nhắn chat và nhận phản hồi.
+
+**Yêu cầu:**
+
+```json
+{
+  "messages": [
+    {"role": "user", "content": "Xin chào!"}
+  ],
+  "provider": "gemini",  // hoặc "openai"
+  "system_prompt": "Bạn là trợ lý kế toán chuyên nghiệp" // tùy chọn
+}
+```
+
+**Phản hồi:**
+
+```json
+{
+  "response": "Xin chào! Tôi có thể giúp gì cho bạn?",
+  "processing_time": 0.543
+}
+```
+
+### GET /health
+
+Kiểm tra trạng thái hoạt động của dịch vụ.
+
+## Sử dụng Client Demo
+
+Chạy file client.py để tương tác với API qua giao diện dòng lệnh:
+
+```bash
+python client.py
+```
+
+## Cấu trúc Dự án
+
+- `main.py`: API FastAPI
+- `ai_service.py`: Dịch vụ xử lý AI
+- `intent_router_test.py`: Xử lý phân tích ý định người dùng
+- `client.py`: Client demo dòng lệnh
+
 # AI Hub Tiếng Việt
 
 Một ứng dụng web với API tích hợp nhiều dịch vụ xử lý ngôn ngữ tự nhiên tiếng Việt, bao gồm giao diện chat đa mô hình.
