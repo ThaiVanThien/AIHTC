@@ -126,13 +126,15 @@ app.add_middleware(
 
 # Đăng ký các router trực tiếp mà không dùng tiền tố /api/v1
 # Đầu tiên import tất cả để tránh lỗi import cycle
-from app.routers import nlp, vimrc, cloud_ai, chat
+from app.routers import nlp, vimrc, cloud_ai, chat, product,chat_cho
 
 # Đăng ký các router theo thứ tự
-app.include_router(chat.router, prefix="/chat", tags=["chat"])
+#app.include_router(chat.router, prefix="/chat", tags=["chat"])
+app.include_router(chat_cho.router, prefix="/chat", tags=["chat"])
 app.include_router(vimrc.router, prefix="/vimrc", tags=["vi-mrc"])
 app.include_router(cloud_ai.router, prefix="/cloud", tags=["cloud-ai"])
 app.include_router(nlp.router, tags=["nlp"])
+app.include_router(product.router, prefix="/api", tags=["product"])
 
 # Thêm cấu hình để phục vụ các static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

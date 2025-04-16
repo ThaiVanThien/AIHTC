@@ -1,8 +1,7 @@
-import uvicorn
-import socket
 import os
 import sys
 import logging
+import socket
 from pathlib import Path
 
 # Cấu hình logging
@@ -31,8 +30,10 @@ def find_available_port(start_port: int, max_attempts: int = 10) -> int:
     # Nếu không tìm thấy cổng nào khả dụng, trả về 0 để hệ thống tự động chọn
     return 0
 
-def setup_environment():
-    """Thiết lập môi trường"""
+def setup_debug_environment():
+    """
+    Cấu hình môi trường để debug ứng dụng FastAPI
+    """
     # Lấy đường dẫn thư mục gốc của dự án
     current_file = Path(__file__).resolve()
     project_root = current_file.parent
@@ -42,12 +43,26 @@ def setup_environment():
         sys.path.insert(0, str(project_root))
         logger.info(f"Đã thêm {project_root} vào PYTHONPATH")
     
-    # In thông tin
+    # Kiểm tra cấu trúc thư mục
+    app_dir = project_root / "app"
+    if not app_dir.exists():
+        logger.warning(f"Không tìm thấy thư mục app tại {app_dir}")
+    else:
+        logger.info(f"Tìm thấy thư mục app tại {app_dir}")
+    
+    # In thông tin debug
     logger.info(f"Project root: {project_root}")
+    logger.info(f"Python path: {sys.path}")
+    logger.info(f"Current working directory: {os.getcwd()}")
+    
+    return project_root
 
-if __name__ == "__main__":
-    # Thiết lập môi trường
-    setup_environment()
+def run_debug():
+    """
+    Chạy ứng dụng FastAPI trong chế độ debug
+    """
+    global APP_PORT
+    project_root = setup_debug_environment()
     
     # Kiểm tra cổng đã sử dụng chưa
     if is_port_in_use(APP_PORT):
@@ -61,8 +76,29 @@ if __name__ == "__main__":
         APP_PORT = new_port
     
     try:
-        logger.info(f"Khởi động ứng dụng trên cổng {APP_PORT}...")
-        uvicorn.run("app.main:app", host="127.0.0.1", port=APP_PORT, reload=False, workers=1)
+        # Import uvicorn sau khi cấu hình PYTHONPATH
+        import uvicorn
+        
+        try:
+            from app.main import app
+            
+            # Hiển thị thông tin về các router đã đăng ký
+            logger.info("Các router đã đăng ký:")
+            for route in app.routes:
+                logger.info(f"  {route.path}")
+        except ImportError:
+            logger.warning("Không thể import app.main:app. Có thể không cần kiểm tra router.")
+        
+        # Chạy ứng dụng với uvicorn
+        logger.info(f"Khởi động ứng dụng với uvicorn trên cổng {APP_PORT}...")
+        uvicorn.run("app.main:app", host="127.0.0.1", port=APP_PORT, reload=True)
+        
+    except ImportError as e:
+        logger.error(f"Lỗi import: {e}")
+        logger.error("Vui lòng chạy từ thư mục gốc của dự án hoặc kiểm tra cài đặt các thư viện")
     except Exception as e:
-        logger.error(f"Lỗi khi khởi động ứng dụng: {e}")
-        sys.exit(1) 
+        logger.error(f"Lỗi khi chạy ứng dụng: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    run_debug() 
