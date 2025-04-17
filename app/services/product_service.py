@@ -54,7 +54,8 @@ class ProductService:
             "mặt hàng", "đồ", "đắt", "rẻ", "tiền", "giá tiền", "mua bán",
             "bao nhiêu", "tốt", "xấu", "chất lượng", "gạo", "thực phẩm",
             "danh sách", "liệt kê", "xem", "tất cả", "có những", "loại nào",
-            "danh mục", "thông tin", "giới thiệu", "tên sản phẩm"
+            "danh mục", "thông tin", "giới thiệu", "tên sản phẩm", "category",
+            "phân loại", "loại sản phẩm", "nhóm", "loại", "chủng loại"
         ]
         
         # Kiểm tra từng từ khóa
@@ -74,7 +75,9 @@ class ProductService:
             r"liệt kê(?:.*)sản phẩm",
             r"có (?:những|các) (?:sản phẩm|loại|mặt hàng)",
             r"cửa hàng.*(?:có|bán)",
-            r"danh mục.*(?:sản phẩm|hàng hóa)"
+            r"danh mục.*(?:sản phẩm|hàng hóa)",
+            r"phân loại.*(?:sản phẩm|hàng hóa)",
+            r"loại sản phẩm"
         ]
         
         for pattern in product_patterns:
@@ -87,7 +90,8 @@ class ProductService:
             "các sản phẩm", "tất cả sản phẩm", "có những sản phẩm nào",
             "những sản phẩm", "các loại", "có những loại nào",
             "danh mục", "thông tin sản phẩm", "giới thiệu sản phẩm",
-            "cửa hàng có gì", "bán những gì"
+            "cửa hàng có gì", "bán những gì", "danh mục sản phẩm",
+            "phân loại sản phẩm", "nhóm sản phẩm", "loại sản phẩm"
         ]
         
         for phrase in product_list_phrases:
@@ -231,9 +235,27 @@ class ProductService:
                 "những sản phẩm", "các loại", "có những loại nào", "danh mục"
             ])
             
+            # Kiểm tra nếu là yêu cầu sắp xếp theo giá
+            is_price_sort = "sắp xếp" in query_lower and ("giá" in query_lower or "đắt" in query_lower or "rẻ" in query_lower)
+            
+            # Sắp xếp tất cả sản phẩm theo giá tăng dần trước
+            sorted_products = sorted(products, key=lambda x: float(x.get("price", 0)))
+            
             # Giới hạn số lượng sản phẩm để tránh token quá lớn
-            max_products = 15 if is_product_list_query else 5
-            truncated_products = products[:max_products]
+            max_products = 100 if is_product_list_query or is_price_sort else 20
+            truncated_products = sorted_products[:max_products]
+            
+            # Chuẩn bị mô tả ngắn gọn
+            def get_short_description(description: str, max_length: int = 100) -> str:
+                if not description:
+                    return ""
+                    
+                # Nếu mô tả quá dài, cắt ngắn
+                if len(description) > max_length:
+                    # Cắt ở ký tự không phải dấu cách cuối cùng trước max_length
+                    short_desc = description[:max_length].rsplit(' ', 1)[0]
+                    return short_desc + "..."
+                return description
             
             # Tạo danh sách sản phẩm dạng văn bản
             products_text = ""
@@ -244,6 +266,7 @@ class ProductService:
                 price_display = product.get("price_display", f"{price:,}đ".replace(",", "."))
                 unit = product.get("unit", "")
                 seller = product.get("sellerName", "Không có thông tin")
+                description = product.get("description", "")
                 
                 # Sử dụng URL từ API nếu có, nếu không thì tạo URL giả
                 product_url = product.get("url_sanpham", "")
@@ -256,17 +279,31 @@ class ProductService:
                 products_text += f"ID: {product_id}\n"
                 products_text += f"URL: {product_url}\n"
                 products_text += f"Giá: {price_display}/{unit}\n"
-                products_text += f"Người bán: {seller}\n\n"
+                products_text += f"Người bán: {seller}\n"
+                
+                # Thêm mô tả ngắn gọn nếu có
+                if description:
+                    short_desc = get_short_description(description, 150)
+                    products_text += f"Mô tả: {short_desc}\n"
+                
+                products_text += "\n"
             
             system_prompt = ""
-            if is_product_list_query:
+            if is_product_list_query or is_price_sort:
                 system_prompt = f"""
-                Dưới đây là danh sách sản phẩm. Hãy liệt kê các sản phẩm này một cách rõ ràng, tổ chức theo nhóm và giá từ thấp đến cao.
-                Đảm bảo hiển thị đầy đủ tên sản phẩm. Với mỗi sản phẩm, hãy tạo một liên kết HTML (<a>) như sau:
+                Dưới đây là danh sách sản phẩm đã được sắp xếp theo giá từ thấp đến cao. Hãy liệt kê các sản phẩm này một cách rõ ràng, tổ chức theo nhóm giá:
+                
+                1. Nhóm giá rẻ: Giá dưới 100.000đ
+                2. Nhóm giá trung bình: Giá từ 100.000đ đến 500.000đ
+                3. Nhóm giá cao: Giá trên 500.000đ
+                
+                Với mỗi sản phẩm, hãy tạo một liên kết HTML (<a>) như sau:
                 * <a href="URL_SẢN_PHẨM">TÊN_SẢN_PHẨM</a>: GIÁ/ĐƠN_VỊ (NGƯỜI_BÁN)
                 
-                Tổng hợp thành các nhóm sản phẩm theo giá (giá rẻ, trung bình, cao) và thêm thông tin tổng quan về giá thấp nhất, cao nhất.
-                Nếu sản phẩm không có tên, hãy ghi rõ "Không có tên".
+                Đảm bảo sản phẩm được hiển thị đúng thứ tự từ giá thấp đến cao trong mỗi nhóm.
+                Chỉ hiển thị mô tả sản phẩm khi thực sự cần thiết như khi so sánh giữa các sản phẩm, và giữ mô tả ngắn gọn.
+                Thêm thông tin tổng quan về giá thấp nhất, cao nhất.
+                Nếu người dùng có yêu cầu sắp xếp lại, hãy sắp xếp theo yêu cầu đó.
                 
                 Danh sách sản phẩm:
                 {products_text}
@@ -280,6 +317,8 @@ class ProductService:
                 
                 Với mỗi sản phẩm, hãy tạo một liên kết HTML (<a>) như sau:
                 <a href="URL_SẢN_PHẨM">TÊN_SẢN_PHẨM</a>: GIÁ/ĐƠN_VỊ
+                
+                Chỉ hiển thị mô tả sản phẩm khi cần thiết và giữ mô tả ngắn gọn.
                 
                 Danh sách sản phẩm:
                 {products_text}
@@ -295,7 +334,7 @@ class ProductService:
                 response = await gemini_service.chat(
                     messages=messages,
                     temperature=0.7,
-                    max_tokens=1000 if is_product_list_query else 500
+                    max_tokens=6000 if is_product_list_query else 2000
                 )
                 return response["answer"]
             except Exception as e:
@@ -306,46 +345,116 @@ class ProductService:
                     response = await openai_service.chat(
                         messages=messages,
                         temperature=0.7,
-                        max_tokens=1000 if is_product_list_query else 500
+                        max_tokens=6000 if is_product_list_query else 2000
                     )
                     return response["answer"]
                 except Exception as e:
                     logger.warning(f"Lỗi khi dùng OpenAI: {str(e)}")
             
             # Nếu cả hai đều lỗi, trả về danh sách định dạng đơn giản
-            if is_product_list_query:
+            if is_product_list_query or is_price_sort:
                 # Danh sách sản phẩm đẹp hơn cho câu hỏi về danh sách
                 result = f"Danh sách {len(products)} sản phẩm (hiển thị {len(truncated_products)}):\n\n"
-                
-                # Sắp xếp sản phẩm theo giá từ thấp đến cao
-                sorted_products = sorted(truncated_products, key=lambda x: x.get("price", 0))
                 
                 # Tìm giá cao nhất và thấp nhất
                 min_price = sorted_products[0].get("price", 0) if sorted_products else 0
                 max_price = sorted_products[-1].get("price", 0) if sorted_products else 0
                 
                 # Thêm thông tin tổng quan
-                result += f"Giá thấp nhất: {min_price:,}đ\n"
-                result += f"Giá cao nhất: {max_price:,}đ\n\n"
+                result += f"**Giá thấp nhất:** {min_price:,}đ\n"
+                result += f"**Giá cao nhất:** {max_price:,}đ\n\n"
                 
-                # Liệt kê sản phẩm
-                for i, product in enumerate(sorted_products, 1):
-                    product_id = product.get("productId", "") or product.get("product_id", "")
-                    name = product.get("productName", "") or product.get("name", "Không có tên")
-                    price_display = product.get("price_display", "")
-                    unit = product.get("unit", "")
-                    seller = product.get("sellerName", "Không có thông tin")
+                # Phân nhóm sản phẩm theo giá
+                low_price = []
+                mid_price = []
+                high_price = []
+                
+                # Xác định ngưỡng giá
+                for product in truncated_products:
+                    price = float(product.get("price", 0))
+                    if price < 100000:
+                        low_price.append(product)
+                    elif price <= 500000:
+                        mid_price.append(product)
+                    else:
+                        high_price.append(product)
+                
+                # Hiển thị sản phẩm theo nhóm giá
+                if low_price:
+                    result += "**Nhóm giá rẻ (dưới 100.000đ):**\n\n"
+                    for i, product in enumerate(low_price, 1):
+                        name = product.get("productName", "") or product.get("name", "Không có tên")
+                        price = product.get("price", 0)
+                        price_display = product.get("price_display", f"{price:,}đ".replace(",", "."))
+                        unit = product.get("unit", "")
+                        seller = product.get("sellerName", "Không có thông tin")
+                        description = product.get("description", "")
+                        
+                        # Sử dụng URL từ API nếu có
+                        product_url = product.get("url_sanpham", "")
+                        if not product_url:
+                            product_id = product.get("productId", "") or product.get("product_id", "")
+                            if product_id:
+                                product_url = f"/products/detail/{product_id}"
+                            else:
+                                product_url = "#"
+                        
+                        result += f"* <a href=\"{product_url}\">{name}</a>: {price_display}/{unit} ({seller})\n"
+                        if description:
+                            short_desc = get_short_description(description, 100)
+                            result += f"  {short_desc}\n"
                     
-                    # Sử dụng URL từ API nếu có
-                    product_url = product.get("url_sanpham", "")
-                    if not product_url and product_id:
-                        product_url = f"/products/detail/{product_id}"
-                    elif not product_url:
-                        product_url = "#"
+                    result += "\n"
+                
+                if mid_price:
+                    result += "**Nhóm giá trung bình (100.000đ - 500.000đ):**\n\n"
+                    for i, product in enumerate(mid_price, 1):
+                        name = product.get("productName", "") or product.get("name", "Không có tên")
+                        price = product.get("price", 0)
+                        price_display = product.get("price_display", f"{price:,}đ".replace(",", "."))
+                        unit = product.get("unit", "")
+                        seller = product.get("sellerName", "Không có thông tin") 
+                        description = product.get("description", "")
+                        
+                        # Sử dụng URL từ API nếu có
+                        product_url = product.get("url_sanpham", "")
+                        if not product_url:
+                            product_id = product.get("productId", "") or product.get("product_id", "")
+                            if product_id:
+                                product_url = f"/products/detail/{product_id}"
+                            else:
+                                product_url = "#"
+                        
+                        result += f"* <a href=\"{product_url}\">{name}</a>: {price_display}/{unit} ({seller})\n"
+                        if description:
+                            short_desc = get_short_description(description, 100)
+                            result += f"  {short_desc}\n"
                     
-                    result += f"{i}. <a href=\"{product_url}\">{name}</a>\n"
-                    result += f"   Giá: {price_display}/{unit}\n"
-                    result += f"   Người bán: {seller}\n\n"
+                    result += "\n"
+                
+                if high_price:
+                    result += "**Nhóm giá cao (trên 500.000đ):**\n\n"
+                    for i, product in enumerate(high_price, 1):
+                        name = product.get("productName", "") or product.get("name", "Không có tên")
+                        price = product.get("price", 0)
+                        price_display = product.get("price_display", f"{price:,}đ".replace(",", "."))
+                        unit = product.get("unit", "")
+                        seller = product.get("sellerName", "Không có thông tin")
+                        description = product.get("description", "")
+                        
+                        # Sử dụng URL từ API nếu có
+                        product_url = product.get("url_sanpham", "")
+                        if not product_url:
+                            product_id = product.get("productId", "") or product.get("product_id", "")
+                            if product_id:
+                                product_url = f"/products/detail/{product_id}"
+                            else:
+                                product_url = "#"
+                        
+                        result += f"* <a href=\"{product_url}\">{name}</a>: {price_display}/{unit} ({seller})\n"
+                        if description:
+                            short_desc = get_short_description(description, 100)
+                            result += f"  {short_desc}\n"
             else:
                 # Format chuẩn cho câu hỏi thông thường
                 result = f"Tìm thấy {len(products)} sản phẩm:\n\n"
@@ -380,8 +489,18 @@ class ProductService:
             Kết quả trả lời
         """
         try:
-            # Kiểm tra nếu là yêu cầu về danh sách sản phẩm chung
+            # Kiểm tra nếu câu hỏi liên quan đến danh mục
             query_lower = query.lower()
+            is_category_query = any(phrase in query_lower for phrase in [
+                "danh mục", "phân loại", "loại sản phẩm", "nhóm", "category",
+                "chủng loại", "các loại"
+            ])
+            
+            if is_category_query:
+                # Xử lý câu hỏi về danh mục
+                return await self.process_category_query(query)
+            
+            # Kiểm tra nếu là yêu cầu về danh sách sản phẩm chung
             is_product_list_query = any(phrase in query_lower for phrase in [
                 "danh sách sản phẩm", "liệt kê sản phẩm", "xem sản phẩm", 
                 "các sản phẩm", "tất cả sản phẩm", "có những sản phẩm nào",
@@ -418,6 +537,110 @@ class ProductService:
         except Exception as e:
             logger.error(f"Lỗi khi xử lý câu hỏi sản phẩm: {str(e)}")
             return f"Đã xảy ra lỗi khi xử lý thông tin sản phẩm: {str(e)}"
+    
+    async def process_category_query(self, query: str) -> str:
+        """
+        Xử lý câu hỏi liên quan đến danh mục sản phẩm
+        
+        Args:
+            query: Câu hỏi của người dùng
+            
+        Returns:
+            Kết quả trả lời
+        """
+        try:
+            # Import module với kiểm tra lỗi
+            try:
+                from app.api.query_demo.product_api import get_categories, format_categories
+            except ImportError:
+                logger.error(f"Không thể import module product_api")
+                return "Không thể tải thông tin danh mục sản phẩm. Vui lòng thử lại sau."
+            
+            # Lấy danh mục từ API
+            categories = await get_categories(page_size=50)
+            
+            # Kiểm tra xem có muốn biết thông tin chi tiết về danh mục cụ thể không
+            category_name = None
+            for phrase in ["danh mục", "loại", "chủng loại", "phân loại"]:
+                if phrase in query.lower():
+                    # Tìm tên danh mục sau từ khóa
+                    parts = query.lower().split(phrase)
+                    if len(parts) > 1 and parts[1].strip():
+                        potential_name = parts[1].strip()
+                        # Loại bỏ các từ không cần thiết
+                        for word in ["sản phẩm", "hàng hóa", "về", "của"]:
+                            potential_name = potential_name.replace(word, "").strip()
+                        if potential_name:
+                            category_name = potential_name
+                            break
+            
+            # Nếu có tên danh mục cụ thể, lọc kết quả
+            if category_name:
+                logger.info(f"Đang tìm thông tin về danh mục: {category_name}")
+                filtered_categories = []
+                for cat in categories.get("data", []):
+                    if category_name.lower() in cat.get("name", "").lower():
+                        filtered_categories.append(cat)
+                
+                if filtered_categories:
+                    result = {
+                        "success": True,
+                        "data": filtered_categories,
+                        "total": len(filtered_categories),
+                        "message": f"Tìm thấy {len(filtered_categories)} danh mục khớp với '{category_name}'"
+                    }
+                    return format_categories(result)
+                else:
+                    return f"Không tìm thấy danh mục nào phù hợp với '{category_name}'."
+            
+            # Nếu không có tên cụ thể, trả về toàn bộ danh mục
+            formatted_result = format_categories(categories)
+            
+            # Thử phân tích thêm bằng AI
+            try:
+                # Tạo prompt cho AI
+                system_prompt = """
+                Dưới đây là danh sách danh mục sản phẩm. Hãy tóm tắt và phân tích để cung cấp thông tin hữu ích cho người dùng.
+                Đưa ra một số gợi ý về sản phẩm có thể tìm thấy trong từng danh mục chính.
+                
+                Danh sách danh mục:
+                """
+                
+                messages = [
+                    {"role": "system", "content": system_prompt + formatted_result},
+                    {"role": "user", "content": query}
+                ]
+                
+                # Thử dùng Gemini
+                try:
+                    response = await gemini_service.chat(
+                        messages=messages,
+                        temperature=0.7,
+                        max_tokens=1000
+                    )
+                    return response["answer"]
+                except Exception as e:
+                    logger.warning(f"Lỗi khi dùng Gemini cho phân tích danh mục: {str(e)}")
+                    
+                    # Nếu Gemini lỗi, thử dùng OpenAI
+                    try:
+                        response = await openai_service.chat(
+                            messages=messages,
+                            temperature=0.7,
+                            max_tokens=1000
+                        )
+                        return response["answer"]
+                    except Exception as e:
+                        logger.warning(f"Lỗi khi dùng OpenAI cho phân tích danh mục: {str(e)}")
+            except Exception as e:
+                logger.warning(f"Lỗi khi phân tích danh mục với AI: {str(e)}")
+            
+            # Trả về định dạng chuẩn nếu phân tích AI thất bại
+            return formatted_result
+            
+        except Exception as e:
+            logger.error(f"Lỗi khi xử lý câu hỏi danh mục: {str(e)}")
+            return f"Đã xảy ra lỗi khi xử lý thông tin danh mục: {str(e)}"
 
 # Khởi tạo service
 product_service = ProductService() 

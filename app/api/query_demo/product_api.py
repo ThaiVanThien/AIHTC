@@ -63,6 +63,40 @@ SAMPLE_RICE_DATA = [
     }
 ]
 
+# Dữ liệu mẫu cho danh mục
+SAMPLE_CATEGORIES = [
+    {
+        "category_id": 1,
+        "name": "Thực phẩm",
+        "description": "Các sản phẩm thực phẩm",
+        "parent_id": 0
+    },
+    {
+        "category_id": 2,
+        "name": "Gạo các loại",
+        "description": "Các sản phẩm gạo",
+        "parent_id": 1
+    },
+    {
+        "category_id": 3,
+        "name": "Thủ công mỹ nghệ",
+        "description": "Sản phẩm thủ công",
+        "parent_id": 0
+    },
+    {
+        "category_id": 4,
+        "name": "Thổ cẩm",
+        "description": "Các sản phẩm thổ cẩm",
+        "parent_id": 3
+    },
+    {
+        "category_id": 5,
+        "name": "Đặc sản vùng miền",
+        "description": "Đặc sản vùng miền",
+        "parent_id": 0
+    }
+]
+
 # Cache dữ liệu
 product_cache = {}
 
@@ -260,5 +294,129 @@ def format_product_list(products: List[Dict[str, Any]]) -> str:
         result += f"{i}. {name}\n"
         result += f"   Giá: {price_display}/{unit}\n"
         result += f"   Người bán: {seller}\n\n"
+    
+    return result 
+
+async def get_categories_real_api(page_size: int = 20, page: int = 0) -> Dict[str, Any]:
+    """
+    Lấy danh sách danh mục sản phẩm từ API thực
+    
+    Args:
+        page_size: Số lượng danh mục mỗi trang
+        page: Số trang (bắt đầu từ 0)
+        
+    Returns:
+        Danh sách danh mục sản phẩm
+    """
+    url = f"{BASE_URL}/Categories/{page_size}?page={page}"
+    
+    # Log thông tin gọi API để debug
+    logger.info(f"Gọi API danh mục: {url}")
+    logger.info(f"Headers: authenticatetoken={AUTH_TOKEN}")
+    
+    headers = {"authenticatetoken": AUTH_TOKEN}
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            # Tăng timeout để tránh lỗi kết nối
+            response = await client.get(url, headers=headers, timeout=30.0)
+            
+            # Log response
+            logger.info(f"API response status: {response.status_code}")
+            
+            # Kiểm tra status code
+            if response.status_code != 200:
+                logger.error(f"Lỗi khi gọi API danh mục: {response.status_code} - {response.text}")
+                return {"success": False, "data": [], "total": 0, "message": f"Lỗi API: {response.status_code}"}
+            
+            # Parse JSON
+            data = response.json()
+            
+            # Chuẩn hóa kết quả
+            return {
+                "success": True,
+                "data": data,
+                "total": len(data),
+                "message": "Lấy danh mục thành công"
+            }
+            
+    except Exception as e:
+        logger.error(f"Lỗi khi gọi API danh mục: {str(e)}")
+        return {"success": False, "data": [], "total": 0, "message": f"Lỗi: {str(e)}"}
+
+async def get_categories(page_size: int = 20, page: int = 0) -> Dict[str, Any]:
+    """
+    Lấy danh sách danh mục sản phẩm
+    
+    Args:
+        page_size: Số lượng danh mục mỗi trang
+        page: Số trang (bắt đầu từ 0)
+        
+    Returns:
+        Danh sách danh mục sản phẩm
+    """
+    # Kiểm tra nếu đã có trong cache
+    cache_key = f"categories_{page}_{page_size}"
+    if cache_key in product_cache:
+        logger.info(f"Lấy danh mục từ cache")
+        return product_cache[cache_key]
+    
+    # Thử gọi API thực
+    try:
+        api_result = await get_categories_real_api(page_size, page)
+        if api_result["success"] and api_result["data"]:
+            # Lưu vào cache
+            product_cache[cache_key] = api_result
+            return api_result
+    except Exception as e:
+        logger.error(f"Lỗi khi gọi API danh mục thực: {str(e)}")
+    
+    # Nếu API thực thất bại, sử dụng dữ liệu mẫu
+    logger.info(f"Sử dụng dữ liệu danh mục mẫu")
+    
+    # Phân trang dữ liệu mẫu
+    start_idx = page * page_size
+    end_idx = start_idx + page_size
+    paginated_data = SAMPLE_CATEGORIES[start_idx:end_idx]
+    
+    result = {
+        "success": True,
+        "data": paginated_data,
+        "total": len(SAMPLE_CATEGORIES),
+        "message": "Lấy danh mục từ dữ liệu mẫu"
+    }
+    
+    # Lưu vào cache
+    product_cache[cache_key] = result
+    return result
+
+def format_categories(categories: Dict[str, Any]) -> str:
+    """
+    Định dạng danh sách danh mục để hiển thị
+    
+    Args:
+        categories: Kết quả từ hàm get_categories
+        
+    Returns:
+        Chuỗi kết quả đã định dạng
+    """
+    if not categories.get("success", False) or not categories.get("data", []):
+        return "Không lấy được danh sách danh mục sản phẩm."
+    
+    category_list = categories.get("data", [])
+    result = f"Có {len(category_list)} danh mục sản phẩm:\n\n"
+    
+    for i, category in enumerate(category_list, 1):
+        category_id = category.get("category_id", category.get("id", ""))
+        name = category.get("name", "Không có tên")
+        description = category.get("description", "")
+        parent_id = category.get("parent_id", 0)
+        
+        result += f"{i}. {name} (ID: {category_id})\n"
+        if description:
+            result += f"   Mô tả: {description}\n"
+        if parent_id:
+            result += f"   Danh mục cha: {parent_id}\n"
+        result += "\n"
     
     return result 
