@@ -345,6 +345,7 @@ body.dark-theme {
   height: calc(100vh - 180px);
   scroll-behavior: smooth;
 }
+.messages-wrap::-webkit-scrollbar { display: none; }
 
 /* Messages */
 .message {

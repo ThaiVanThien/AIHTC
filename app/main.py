@@ -22,7 +22,7 @@ load_dotenv(verbose=True)
 
 from app.core.config import settings
 from app.core.logging_config import setup_logging
-from app.routers import nlp, vimrc, cloud_ai, chat
+from app.routers import nlp, vimrc, cloud_ai, chat, product, chat_cho, product_category, product_routes
 from app.middleware.rate_limiter import RateLimitMiddleware, rate_limiter
 
 # Thiết lập logging
@@ -126,7 +126,7 @@ app.add_middleware(
 
 # Đăng ký các router trực tiếp mà không dùng tiền tố /api/v1
 # Đầu tiên import tất cả để tránh lỗi import cycle
-from app.routers import nlp, vimrc, cloud_ai, chat, product,chat_cho
+from app.routers import nlp, vimrc, cloud_ai, chat, product, chat_cho, product_category, product_routes
 
 # Đăng ký các router theo thứ tự
 #app.include_router(chat.router, prefix="/chat", tags=["chat"])
@@ -135,6 +135,8 @@ app.include_router(vimrc.router, prefix="/vimrc", tags=["vi-mrc"])
 app.include_router(cloud_ai.router, prefix="/cloud", tags=["cloud-ai"])
 app.include_router(nlp.router, tags=["nlp"])
 app.include_router(product.router, prefix="/api", tags=["product"])
+app.include_router(product_category.router, prefix="/product-category", tags=["product-category"])
+app.include_router(product_routes.router, tags=["products"])
 
 # Thêm cấu hình để phục vụ các static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

@@ -63,6 +63,60 @@ SAMPLE_RICE_DATA = [
     }
 ]
 
+# Dữ liệu mẫu cho sản phẩm thủ công mỹ nghệ
+SAMPLE_HANDCRAFT_DATA = [
+    {
+        "productId": "HC001",
+        "productName": "Vải thổ cẩm A Lưới",
+        "price": 500000,
+        "unit": "mét",
+        "sellerName": "Làng Nghề A Lưới",
+        "description": "Vải thổ cẩm dệt thủ công từ người dân A Lưới, với họa tiết truyền thống đặc trưng",
+        "images": ["https://example.com/handcraft1.jpg"],
+        "category_id": 3
+    },
+    {
+        "productId": "HC002",
+        "productName": "Khăn thổ cẩm A So",
+        "price": 350000,
+        "unit": "cái",
+        "sellerName": "Làng Nghề A So",
+        "description": "Khăn thổ cẩm dệt thủ công từ chỉ 100% cotton",
+        "images": ["https://example.com/handcraft2.jpg"],
+        "category_id": 4
+    },
+    {
+        "productId": "HC003",
+        "productName": "Túi thổ cẩm đựng Laptop",
+        "price": 320000,
+        "unit": "cái",
+        "sellerName": "AzaKooh",
+        "description": "Túi đựng laptop thổ cẩm sang trọng, bảo vệ thiết bị của bạn với phong cách độc đáo",
+        "images": ["https://example.com/handcraft3.jpg"],
+        "category_id": 4
+    },
+    {
+        "productId": "HC004",
+        "productName": "Áo dài thổ cẩm AzaKooh",
+        "price": 1200000,
+        "unit": "bộ",
+        "sellerName": "AzaKooh",
+        "description": "Áo dài thổ cẩm phối vải dệt truyền thống, phù hợp mọi dịp lễ, Tết",
+        "images": ["https://example.com/handcraft4.jpg"],
+        "category_id": 4
+    },
+    {
+        "productId": "HC005",
+        "productName": "Lắc tay thổ cẩm",
+        "price": 80000,
+        "unit": "cái",
+        "sellerName": "AzaKooh",
+        "description": "Lắc tay thủ công với họa tiết thổ cẩm đặc trưng, thích hợp làm quà tặng",
+        "images": ["https://example.com/handcraft5.jpg"],
+        "category_id": 4
+    }
+]
+
 # Dữ liệu mẫu cho danh mục
 SAMPLE_CATEGORIES = [
     {
@@ -96,6 +150,20 @@ SAMPLE_CATEGORIES = [
         "parent_id": 0
     }
 ]
+
+# Map category_id với danh sách sản phẩm mẫu
+CATEGORY_PRODUCT_MAP = {
+    # Thực phẩm
+    1: [],
+    # Gạo các loại 
+    2: SAMPLE_RICE_DATA,
+    # Thủ công mỹ nghệ
+    3: SAMPLE_HANDCRAFT_DATA,
+    # Thổ cẩm
+    4: [p for p in SAMPLE_HANDCRAFT_DATA if p.get("category_id") == 4],
+    # Đặc sản vùng miền
+    5: []
+}
 
 # Cache dữ liệu
 product_cache = {}
@@ -420,3 +488,163 @@ def format_categories(categories: Dict[str, Any]) -> str:
         result += "\n"
     
     return result 
+
+async def get_products_by_category_real_api(category_id: int, page: int = 0, page_size: int = 20) -> Dict[str, Any]:
+    """
+    Lấy danh sách sản phẩm từ API dựa theo danh mục
+    
+    Args:
+        category_id: ID của danh mục cần tìm sản phẩm
+        page: Số trang (bắt đầu từ 0)
+        page_size: Số lượng sản phẩm mỗi trang
+        
+    Returns:
+        Danh sách sản phẩm thuộc danh mục
+    """
+    url = f"{BASE_URL}/ProductsByCategory/{category_id}?page={page}&page_size={page_size}"
+    
+    # Log thông tin gọi API để debug
+    logger.info(f"Gọi API sản phẩm theo danh mục: {url}")
+    logger.info(f"Headers: authenticatetoken={AUTH_TOKEN}")
+    
+    headers = {"authenticatetoken": AUTH_TOKEN}
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            # Tăng timeout để tránh lỗi kết nối
+            response = await client.get(url, headers=headers, timeout=30.0)
+            
+            # Log response
+            logger.info(f"API response status: {response.status_code}")
+            
+            # Kiểm tra status code
+            if response.status_code != 200:
+                logger.error(f"Lỗi khi gọi API sản phẩm theo danh mục: {response.status_code} - {response.text}")
+                return {"success": False, "data": [], "total": 0, "message": f"Lỗi API: {response.status_code}"}
+            
+            # Parse JSON
+            data = response.json()
+            
+            # Đảm bảo mỗi sản phẩm có category_id
+            for product in data:
+                if "category_id" not in product:
+                    product["category_id"] = category_id
+                    
+                # Đảm bảo mỗi sản phẩm có trường price_display
+                if "price" in product and "price_display" not in product:
+                    price = product["price"]
+                    product["price_display"] = f"{price:,}đ".replace(",", ".")
+            
+            # Chuẩn hóa kết quả
+            return {
+                "success": True,
+                "data": data,
+                "total": len(data),
+                "category_id": category_id,
+                "message": f"Lấy sản phẩm theo danh mục {category_id} thành công"
+            }
+            
+    except Exception as e:
+        logger.error(f"Lỗi khi gọi API sản phẩm theo danh mục: {str(e)}")
+        return {"success": False, "data": [], "total": 0, "message": f"Lỗi: {str(e)}"}
+
+async def get_products_by_category(category_id: int, page: int = 0, page_size: int = 20) -> Dict[str, Any]:
+    """
+    Lấy danh sách sản phẩm theo danh mục
+    
+    Args:
+        category_id: ID của danh mục cần tìm sản phẩm
+        page: Số trang (bắt đầu từ 0)
+        page_size: Số lượng sản phẩm mỗi trang
+        
+    Returns:
+        Danh sách sản phẩm thuộc danh mục
+    """
+    # Kiểm tra nếu đã có trong cache
+    cache_key = f"products_category_{category_id}_{page}_{page_size}"
+    if cache_key in product_cache:
+        logger.info(f"Lấy sản phẩm từ cache cho danh mục: {category_id}")
+        return product_cache[cache_key]
+    
+    # Thử gọi API thực
+    try:
+        api_result = await get_products_by_category_real_api(category_id, page, page_size)
+        if api_result["success"] and api_result["data"]:
+            # Lưu vào cache
+            product_cache[cache_key] = api_result
+            return api_result
+    except Exception as e:
+        logger.error(f"Lỗi khi gọi API sản phẩm theo danh mục thực: {str(e)}")
+    
+    # Nếu API thực thất bại, sử dụng dữ liệu mẫu
+    logger.info(f"Sử dụng dữ liệu mẫu cho danh mục: {category_id}")
+    
+    # Lấy dữ liệu mẫu cho danh mục
+    sample_data = []
+    category_id_str = str(category_id)
+    if category_id in CATEGORY_PRODUCT_MAP:
+        sample_data = CATEGORY_PRODUCT_MAP[category_id]
+    
+    # Phân trang dữ liệu mẫu
+    start_idx = page * page_size
+    end_idx = start_idx + page_size
+    paginated_data = sample_data[start_idx:end_idx]
+    
+    # Đảm bảo mỗi sản phẩm có trường price_display
+    for product in paginated_data:
+        if "price" in product and "price_display" not in product:
+            price = product["price"]
+            product["price_display"] = f"{price:,}đ".replace(",", ".")
+    
+    result = {
+        "success": True,
+        "data": paginated_data,
+        "total": len(sample_data),
+        "category_id": category_id,
+        "message": f"Lấy sản phẩm theo danh mục {category_id} từ dữ liệu mẫu"
+    }
+    
+    # Lưu vào cache
+    product_cache[cache_key] = result
+    return result 
+
+async def get_products(self, product_name: str, page: int = 0, page_size: int = 20) -> Dict[str, Any]:
+    # ... existing code ...
+    for product in result["data"]:
+        # Thêm thông tin chi tiết
+        product["description"] = product.get("description", "Không có mô tả")
+        product["images"] = product.get("images", [])
+    return result 
+
+async def get_product_details(self, product_id: str) -> Dict[str, Any]:
+    try:
+        url = f"{self.base_url}/{product_id}"
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                return {"success": False, "message": "Không tìm thấy sản phẩm."}
+    except Exception as e:
+        logger.error(f"Lỗi khi lấy thông tin sản phẩm: {str(e)}")
+        return {"success": False, "message": str(e)} 
+
+async def process_product_query(self, query: str) -> str:
+    # ... existing code ...
+    if is_specific_product_query:
+        product_id = extract_product_id_from_query(query)  # Hàm để trích xuất productId từ câu hỏi
+        product_details = await self.get_product_details(product_id)
+        if product_details.get("success"):
+            return format_product_details(product_details)  # Hàm để định dạng thông tin sản phẩm
+        else:
+            return product_details.get("message", "Không tìm thấy thông tin sản phẩm.") 
+
+def format_product_details(product: Dict[str, Any]) -> str:
+    return f"""
+    <h2>{product['productName']}</h2>
+    <p>Giá: {product['price_display']}</p>
+    <p>Đơn vị: {product['unit']}</p>
+    <p>Người bán: {product['sellerName']}</p>
+    <p>Mô tả: {product['description']}</p>
+    <img src="{product['images'][0]}" alt="{product['productName']}">
+    """ 

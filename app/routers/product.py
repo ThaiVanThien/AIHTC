@@ -148,7 +148,7 @@ def format_product_list(products: List[Dict[str, Any]]) -> str:
 async def get_products_api(
     name: str = Query("", description="Tên sản phẩm cần tìm"),
     page: int = Query(0, description="Số trang (bắt đầu từ 0)"),
-    page_size: int = Query(20, description="Số lượng sản phẩm mỗi trang")
+    page_size: int = Query(100, description="Số lượng sản phẩm mỗi trang")
 ):
     """
     Lấy danh sách sản phẩm từ API Chợ Đồng Bào theo tên
@@ -224,4 +224,76 @@ async def test_connection():
         return {
             "success": False,
             "message": f"Lỗi kết nối API: {str(e)}"
-        } 
+        }
+
+@router.get("/products/detail/{product_id}", summary="Lấy thông tin chi tiết sản phẩm theo ID")
+async def get_product_detail_api(product_id: str):
+    """
+    Lấy thông tin chi tiết của một sản phẩm dựa trên ID
+    
+    - **product_id**: ID của sản phẩm cần lấy thông tin
+    
+    Returns:
+        Thông tin chi tiết về sản phẩm
+    """
+    try:
+        # Import service để sử dụng phương thức get_product_by_id
+        from app.services.product_service import product_service
+        
+        # Gọi phương thức để lấy thông tin chi tiết sản phẩm
+        result = await product_service.get_product_by_id(product_id)
+        
+        # Kiểm tra kết quả
+        if not result.get("success", False):
+            # Thử tìm sản phẩm trong dữ liệu mẫu
+            try:
+                from app.api.query_demo.product_api import SAMPLE_RICE_DATA, SAMPLE_HANDCRAFT_DATA
+                
+                # Tìm trong dữ liệu mẫu gạo
+                for product in SAMPLE_RICE_DATA:
+                    if product.get("productId") == product_id:
+                        # Đảm bảo sản phẩm có trường price_display
+                        if "price" in product and "price_display" not in product:
+                            price = product["price"]
+                            product["price_display"] = f"{price:,}đ".replace(",", ".")
+                        return {"success": True, "data": product}
+                
+                # Tìm trong dữ liệu mẫu thủ công mỹ nghệ
+                for product in SAMPLE_HANDCRAFT_DATA:
+                    if product.get("productId") == product_id:
+                        # Đảm bảo sản phẩm có trường price_display
+                        if "price" in product and "price_display" not in product:
+                            price = product["price"]
+                            product["price_display"] = f"{price:,}đ".replace(",", ".")
+                        return {"success": True, "data": product}
+                        
+                # Nếu không tìm thấy, trả về thông báo lỗi
+                raise HTTPException(status_code=404, detail=f"Không tìm thấy sản phẩm với ID: {product_id}")
+            except ImportError as e:
+                logger.error(f"Không thể import dữ liệu mẫu: {str(e)}")
+                raise HTTPException(status_code=404, detail=f"Không tìm thấy sản phẩm với ID: {product_id}")
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Lỗi khi lấy thông tin chi tiết sản phẩm: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Đã xảy ra lỗi khi lấy thông tin chi tiết sản phẩm: {str(e)}")
+
+@router.get("/api/test", summary="Kiểm tra kết nối tới API")
+async def test_api_connection_endpoint():
+    """
+    Kiểm tra kết nối tới API Chợ Đồng Bào
+    
+    Returns:
+        Kết quả kiểm tra kết nối
+    """
+    try:
+        from app.api.query_demo.product_api import test_api_connection
+        
+        result = await test_api_connection()
+        return result
+    except Exception as e:
+        logger.error(f"Lỗi khi kiểm tra kết nối API: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Lỗi khi kiểm tra kết nối API: {str(e)}") 

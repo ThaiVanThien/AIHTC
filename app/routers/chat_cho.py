@@ -581,4 +581,109 @@ async def get_models():
             }
         }
 
+@router.get("/products/category/{category_id}", response_model=Dict[str, Any], summary="Lấy sản phẩm theo danh mục")
+async def get_products_by_category(category_id: int, page: int = 0, page_size: int = 20):
+    """
+    Lấy danh sách sản phẩm theo danh mục
+    
+    - **category_id**: ID của danh mục cần tìm sản phẩm
+    - **page**: Số trang (bắt đầu từ 0)
+    - **page_size**: Số lượng sản phẩm mỗi trang
+    
+    Trả về danh sách sản phẩm thuộc danh mục với thông tin chi tiết
+    """
+    try:
+        # Import module với kiểm tra lỗi
+        try:
+            from app.api.query_demo.product_api import get_categories, get_products_by_category
+        except ImportError as e:
+            logger.error(f"Không thể import module product_api: {str(e)}")
+            raise HTTPException(status_code=500, detail="Không thể tải thông tin sản phẩm. Vui lòng thử lại sau.")
+        
+        # Lấy danh sách danh mục
+        categories = await get_categories(page_size=50)
+        
+        # Kiểm tra xem danh mục có tồn tại không
+        category_name = None
+        for cat in categories.get("data", []):
+            cat_id = cat.get("category_id", cat.get("id"))
+            if cat_id == category_id:
+                category_name = cat.get("name")
+                break
+        
+        if not category_name:
+            # Xử lý đặc biệt cho dữ liệu mẫu
+            if category_id == 3:
+                category_name = "Thủ công mỹ nghệ"
+            elif category_id == 4:
+                category_name = "Thổ cẩm"
+            elif category_id == 2:
+                category_name = "Gạo các loại"
+            else:
+                raise HTTPException(status_code=404, detail=f"Không tìm thấy danh mục với ID: {category_id}")
+        
+        # Lấy sản phẩm theo category_id
+        logger.info(f"API tìm sản phẩm theo category_id: {category_id}")
+        products_result = await get_products_by_category(category_id, page, page_size)
+        
+        if not products_result.get("success", False) or not products_result.get("data", []):
+            # Trả về danh sách trống nếu không tìm thấy sản phẩm
+            return {
+                "success": True,
+                "data": [],
+                "total": 0,
+                "category_id": category_id,
+                "category_name": category_name,
+                "message": f"Không tìm thấy sản phẩm nào thuộc danh mục '{category_name}'"
+            }
+        
+        # Thêm thông tin về danh mục vào kết quả
+        products_result["category_name"] = category_name
+        
+        return products_result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Lỗi khi tìm sản phẩm theo danh mục: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Đã xảy ra lỗi khi tìm sản phẩm theo danh mục: {str(e)}")
+
+@router.get("/categories", response_model=Dict[str, Any], summary="Lấy danh sách danh mục")
+async def get_categories(page: int = 0, page_size: int = 20):
+    """
+    Lấy danh sách tất cả danh mục sản phẩm
+    
+    - **page**: Số trang (bắt đầu từ 0)
+    - **page_size**: Số lượng danh mục mỗi trang
+    
+    Trả về danh sách danh mục với thông tin chi tiết
+    """
+    try:
+        # Import module với kiểm tra lỗi
+        try:
+            from app.api.query_demo.product_api import get_categories
+        except ImportError as e:
+            logger.error(f"Không thể import module product_api: {str(e)}")
+            raise HTTPException(status_code=500, detail="Không thể tải thông tin danh mục. Vui lòng thử lại sau.")
+        
+        # Lấy danh sách danh mục
+        categories = await get_categories(page_size, page)
+        
+        if not categories.get("success", False) or not categories.get("data", []):
+            # Trả về danh sách trống nếu không tìm thấy danh mục
+            return {
+                "success": True,
+                "data": [],
+                "total": 0,
+                "message": "Không tìm thấy danh mục nào"
+            }
+        
+        return categories
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Lỗi khi lấy danh sách danh mục: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Đã xảy ra lỗi khi lấy danh sách danh mục: {str(e)}")
+
 # Các endpoint quản lý tài liệu đã bị loại bỏ (/documents, /documents/{doc_id}) 
